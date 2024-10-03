@@ -113,7 +113,7 @@ resource "aws_internet_gateway" "igw" {
 
 # NAT Gateway
 resource "aws_eip" "ngw" { 
-  domain = "vpc"
+  domain = "VPC"
   instance = aws_instance.my_server.id
 }
 
