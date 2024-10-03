@@ -35,7 +35,6 @@ resource "aws_security_group" "vpc-web" {
   }
 }
 
-
 resource "aws_instance" "my_server" {
    ami           = data.aws_ami.amazonlinux.id
    instance_type = var.instance_type
@@ -109,6 +108,21 @@ resource "aws_internet_gateway" "igw" {
 
   tags = {
     Name = "InternetGateway"
+  }
+}
+
+# NAT Gateway
+resource "aws_eip" "ngw" { 
+  domain = aws_vpc.main
+  instance = aws_instance.my_server.id
+}
+
+resource "aws_nat_gateway" "ngw" {
+  allocation_id = aws_eip.ngw.id
+  subnet_id = aws_subnet.public.id
+
+  tags = {
+    Name = "NATGateway"
   }
 }
 
