@@ -2,17 +2,17 @@
 
 ## Instructions:
 1. Launch EC2 Instance using AMI
-    - create an EC2 instance 
+    - Create an EC2 instance 
     - Go to AMI and find Team8-TerraformHW
     - Choose instance type as t2.micro, add the keypair that created
     - Launch the instance
 2. Pre Installed with all required scripts
     - terraform_install.sh will have terraform installed
-    - configure the aws cli
-    - clone the repo from github
-    - create keypair call "My-AWS-KEY"
+    - Configure the AWS CLI
+    - Clone the repo from GitHub
+    - Create a keypair called "My-AWS-KEY"
 3. Run the program
     - ssh to your instance
-    - navigate to your terraform repo
-    - terraform init, terraform plan, terraform apply
-    - after test it, terraform destory
+    - Navigate to your terraform repo
+    - Type and enter `terraform init`, `terraform plan`, and `terraform apply`
+    - After testing it, type and enter `terraform destory`
