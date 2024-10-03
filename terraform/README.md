@@ -1,6 +1,7 @@
 # Team8-TerraformHW
 
-## Instructions:
+## Instructions
+
 1. Launch EC2 Instance using AMI
     - Create an EC2 instance.
     - Go to AMI and find Team8-TerraformHW.
@@ -10,7 +11,7 @@
     - terraform_install.sh will have terraform installed.
     - Configure the AWS CLI by typing `aws configure` and providing the information you're prompted for.
     - Clone the repo from GitHub.
-    - Create a keypair called "My-AWS-KEY".
+    - There is a placeholder provided in the main.tf file for the AWS keypair. Please change this to your own keypair.  
 3. Run the program
     - ssh to your instance.
     - Navigate to your terraform repo.
