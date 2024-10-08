@@ -27,6 +27,17 @@ resource "aws_api_gateway_method" "cors_options" {
   authorization = "NONE"
 }
 
+resource "aws_api_gateway_integration" "cors_integration" {
+  rest_api_id = aws_api_gateway_rest_api.fakestore_api.id
+  resource_id = aws_api_gateway_resource.root.id
+  http_method = aws_api_gateway_method.cors_options.http_method
+  type        = "MOCK"
+
+  request_templates = {
+    "application/json" = "{\"statusCode\": 200}"
+  }
+}
+
 resource "aws_api_gateway_integration" "fakestore_integration" {
   rest_api_id = aws_api_gateway_rest_api.fakestore_api.id
   resource_id = aws_api_gateway_resource.root.id
@@ -52,6 +63,10 @@ resource "aws_api_gateway_integration_response" "cors_integration_response" {
     "method.response.header.Access-Control-Allow-Methods" = "'GET,OPTIONS'"
     "method.response.header.Access-Control-Allow-Origin"  = "'*'"
   }
+
+depends_on = [
+    aws_api_gateway_integration.fakestore_integration
+  ]
 }
 
 resource "aws_api_gateway_method_response" "cors_method_response" {
@@ -72,7 +87,7 @@ resource "aws_api_gateway_method_response" "cors_method_response" {
 }
 
 resource "aws_api_gateway_deployment" "api_deployment" {
-  depends_on = [aws_api_gateway_integration.fakestore_integration]
+  depends_on = [aws_api_gateway_integration.cors_integration, aws_api_gateway_integration.fakestore_integration]
   rest_api_id = aws_api_gateway_rest_api.fakestore_api.id
   stage_name  = "test"
 }
