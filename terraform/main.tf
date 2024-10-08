@@ -38,6 +38,7 @@ resource "aws_api_gateway_integration" "cors_integration" {
   }
 }
 
+#
 resource "aws_api_gateway_integration" "fakestore_integration" {
   rest_api_id = aws_api_gateway_rest_api.fakestore_api.id
   resource_id = aws_api_gateway_resource.root.id
@@ -52,6 +53,35 @@ resource "aws_api_gateway_integration" "fakestore_integration" {
   integration_http_method = "GET"
 }
 
+# Integration Response for our Get endpoint
+resource "aws_api_gateway_integration_response" "fakestore_integration_response" {
+  rest_api_id = aws_api_gateway_rest_api.fakestore_api.id
+  resource_id = aws_api_gateway_resource.root.id
+  http_method = aws_api_gateway_method.get_method.http_method
+  status_code = "200"
+
+  response_templates = {
+    "application/json" = ""
+  }
+   depends_on = [
+    aws_api_gateway_integration.fakestore_integration
+  ]
+}
+
+# The method response returned by our GET endpoint
+resource "aws_api_gateway_method_response" "fakestore_200_method_response" {
+  rest_api_id = aws_api_gateway_rest_api.fakestore_api.id
+  resource_id = aws_api_gateway_resource.root.id
+  http_method = aws_api_gateway_method.get_method.http_method
+  status_code = "200"
+
+  response_models = {
+    "application/json" = "Empty"
+  }
+
+}
+
+# The cors integration response.
 resource "aws_api_gateway_integration_response" "cors_integration_response" {
   rest_api_id = aws_api_gateway_rest_api.fakestore_api.id
   resource_id = aws_api_gateway_resource.root.id
@@ -69,6 +99,7 @@ depends_on = [
   ]
 }
 
+# CORS for our GET endpoint 
 resource "aws_api_gateway_method_response" "cors_method_response" {
   rest_api_id = aws_api_gateway_rest_api.fakestore_api.id
   resource_id = aws_api_gateway_resource.root.id
