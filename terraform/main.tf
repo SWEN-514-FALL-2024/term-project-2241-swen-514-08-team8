@@ -122,3 +122,13 @@ resource "aws_api_gateway_deployment" "api_deployment" {
   rest_api_id = aws_api_gateway_rest_api.fakestore_api.id
   stage_name  = "test"
 }
+
+
+# Create a deployment
+resource "aws_api_gateway_deployment" "my_api_deployment" {
+  rest_api_id = aws_api_gateway_rest_api.fakestore_api.id
+  stage_name = "dev"
+  depends_on = [ aws_api_gateway_rest_api.fakestore_api ]
+
+}
+
