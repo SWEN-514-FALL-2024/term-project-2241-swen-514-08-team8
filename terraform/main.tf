@@ -1,3 +1,7 @@
+provider "aws" {
+  region = "us-east-1"
+}
+
 resource "aws_api_gateway_rest_api" "ecommerce-api" {
   body = jsonencode({
     openapi = "3.0.1"
