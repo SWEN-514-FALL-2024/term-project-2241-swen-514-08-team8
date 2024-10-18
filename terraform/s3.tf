@@ -1,4 +1,6 @@
-# resource "aws_s3_bucket" "ecommerce_bucket" {
-#     bucket = "ecommerce-team8"
-
-# }
+resource "aws_s3_bucket" "ecombucket" {
+  bucket = "ecommerce-bucket-012910291021"
+  tags = {
+    Name = "ecommerce-bucket"
+  }
+}

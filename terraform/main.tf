@@ -1,134 +1,121 @@
-provider "aws" {
-  region = "us-east-1"
+resource "aws_api_gateway_rest_api" "ecommerce-api" {
+  body = jsonencode({
+    openapi = "3.0.1"
+    info = {
+      title   = "ecommerce"
+      version = "1.0"
+    }
+
+    paths = {
+      "/products" = {
+        get = {
+          x-amazon-apigateway-integration = {
+            httpMethod           = "GET"
+            payloadFormatVersion = "1.0"
+            type                 = "HTTP_PROXY"
+            uri                  = "https://fakestoreapi.com/products"
+          }
+          parameters = [
+            {
+              name     = "limit"
+              in       = "query"
+              required = false
+              schema = {
+                type = "integer"
+              }
+            },
+            {
+              name     = "sort"
+              in       = "query"
+              required = false
+              schema = {
+                type = "string"
+                enum = ["asc", "desc"]
+              }
+            }
+          ]
+        }
+        # post = {
+        #   x-amazon-apigateway-integration = {
+        #     httpMethod           = "POST"
+        #     payloadFormatVersion = "1.0"
+        #     type                 = "HTTP_PROXY"
+        #     uri                  = "https://fakestoreapi.com/products"
+        #   }
+        #   responses = {
+        #     "200" = {
+        #       content = {
+        #         "application/json" = {
+        #           schema = {
+        #             type = "object"
+        #           }
+        #         }
+        #       }
+        #       headers = {
+        #         "Access-Control-Allow-Origin" = {
+        #           schema = {
+        #             type = "string"
+        #           }
+        #         }
+        #       }
+        #     }
+        #   }
+        # }
+      }
+      "/products/{id}" = {
+        get = {
+          x-amazon-apigateway-integration = {
+            httpMethod           = "GET"
+            payloadFormatVersion = "1.0"
+            type                 = "HTTP_PROXY"
+            uri                  = "https://fakestoreapi.com/products/{id}"
+            requestParameters = {
+              "integration.request.path.id" = "method.request.path.id"
+            }
+            passthroughBehavior = "WHEN_NO_MATCH"
+            connectionType      = "INTERNET"
+            contentHandling     = "CONVERT_TO_TEXT"
+          }
+          responses = {
+            "200" = {
+              content = {
+                "application/json" = {
+                  schema = {
+                    type = "object"
+                  }
+                }
+              }
+              headers = {
+                "Access-Control-Allow-Origin" = {
+                  schema = {
+                    type = "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  })
+  name = "ECommerceAPI"
 }
 
-resource "aws_api_gateway_rest_api" "fakestore_api" {
-  name = "EcommerceAPI"
-  description = "API Gateway for routing traffic to the Fakestore API and other routes"
-}
+resource "aws_api_gateway_deployment" "ecommerce-api" {
+  rest_api_id = aws_api_gateway_rest_api.ecommerce-api.id
 
-resource "aws_api_gateway_resource" "root" {
-  rest_api_id = aws_api_gateway_rest_api.fakestore_api.id
-  parent_id   = aws_api_gateway_rest_api.fakestore_api.root_resource_id
-  path_part   = "ecomstore"
-}
+  triggers = {
+    redeployment = jsonencode(aws_api_gateway_rest_api.ecommerce-api.body)
+  }
 
-resource "aws_api_gateway_method" "get_method" {
-  rest_api_id   = aws_api_gateway_rest_api.fakestore_api.id
-  resource_id   = aws_api_gateway_resource.root.id
-  http_method   = "GET"
-  authorization = "NONE"
-}
-
-resource "aws_api_gateway_method" "cors_options" {
-  rest_api_id   = aws_api_gateway_rest_api.fakestore_api.id
-  resource_id   = aws_api_gateway_resource.root.id
-  http_method   = "OPTIONS"
-  authorization = "NONE"
-}
-
-resource "aws_api_gateway_integration" "cors_integration" {
-  rest_api_id = aws_api_gateway_rest_api.fakestore_api.id
-  resource_id = aws_api_gateway_resource.root.id
-  http_method = aws_api_gateway_method.cors_options.http_method
-  type        = "MOCK"
-
-  request_templates = {
-    "application/json" = "{\"statusCode\": 200}"
+  lifecycle {
+    create_before_destroy = true
   }
 }
 
-#
-resource "aws_api_gateway_integration" "fakestore_integration" {
-  rest_api_id = aws_api_gateway_rest_api.fakestore_api.id
-  resource_id = aws_api_gateway_resource.root.id
-  http_method = aws_api_gateway_method.get_method.http_method
-
-  request_templates = {
-    "application/json" = "{\"statusCode\": 200}"
-  }
-  type        = "HTTP"
-  uri         = "https://fakestoreapi.com/products" # Fakestore API URL
-
-  integration_http_method = "GET"
+resource "aws_api_gateway_stage" "ecommerce-api-stage" {
+  deployment_id = aws_api_gateway_deployment.ecommerce-api.id
+  rest_api_id   = aws_api_gateway_rest_api.ecommerce-api.id
+  
+  stage_name    = "ecommerce-api-stage"
 }
-
-# Integration Response for our Get endpoint
-resource "aws_api_gateway_integration_response" "fakestore_integration_response" {
-  rest_api_id = aws_api_gateway_rest_api.fakestore_api.id
-  resource_id = aws_api_gateway_resource.root.id
-  http_method = aws_api_gateway_method.get_method.http_method
-  status_code = "200"
-
-  response_templates = {
-    "application/json" = ""
-  }
-   depends_on = [
-    aws_api_gateway_integration.fakestore_integration
-  ]
-}
-
-# The method response returned by our GET endpoint
-resource "aws_api_gateway_method_response" "fakestore_200_method_response" {
-  rest_api_id = aws_api_gateway_rest_api.fakestore_api.id
-  resource_id = aws_api_gateway_resource.root.id
-  http_method = aws_api_gateway_method.get_method.http_method
-  status_code = "200"
-
-  response_models = {
-    "application/json" = "Empty"
-  }
-
-}
-
-# The cors integration response.
-resource "aws_api_gateway_integration_response" "cors_integration_response" {
-  rest_api_id = aws_api_gateway_rest_api.fakestore_api.id
-  resource_id = aws_api_gateway_resource.root.id
-  http_method = aws_api_gateway_method.cors_options.http_method
-  status_code = "200"
-
-  response_parameters = {
-    "method.response.header.Access-Control-Allow-Headers" = "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent'"
-    "method.response.header.Access-Control-Allow-Methods" = "'GET,OPTIONS'"
-    "method.response.header.Access-Control-Allow-Origin"  = "'*'"
-  }
-
-depends_on = [
-    aws_api_gateway_integration.fakestore_integration
-  ]
-}
-
-# CORS for our GET endpoint 
-resource "aws_api_gateway_method_response" "cors_method_response" {
-  rest_api_id = aws_api_gateway_rest_api.fakestore_api.id
-  resource_id = aws_api_gateway_resource.root.id
-  http_method = aws_api_gateway_method.cors_options.http_method
-  status_code = "200"
-
-  response_models = {
-    "application/json" = "Empty"
-  }
-
-  response_parameters = {
-    "method.response.header.Access-Control-Allow-Headers" = true
-    "method.response.header.Access-Control-Allow-Methods" = true
-    "method.response.header.Access-Control-Allow-Origin"  = true
-  }
-}
-
-resource "aws_api_gateway_deployment" "api_deployment" {
-  depends_on = [aws_api_gateway_integration.cors_integration, aws_api_gateway_integration.fakestore_integration]
-  rest_api_id = aws_api_gateway_rest_api.fakestore_api.id
-  stage_name  = "test"
-}
-
-
-# Create a deployment
-resource "aws_api_gateway_deployment" "my_api_deployment" {
-  rest_api_id = aws_api_gateway_rest_api.fakestore_api.id
-  stage_name = "dev"
-  depends_on = [ aws_api_gateway_rest_api.fakestore_api ]
-
-}
-
