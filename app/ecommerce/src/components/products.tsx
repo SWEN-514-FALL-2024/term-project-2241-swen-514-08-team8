@@ -9,9 +9,9 @@ import {
   Modal,
   Stack,
   Typography,
-} from "@mui/material";
-import { useEffect, useState } from "react";
-import { useProducts } from "../fetch/product";
+} from '@mui/material';
+import { useEffect, useState } from 'react';
+import { useProducts } from '../fetch/product';
 
 export type Product = {
   id: number;
@@ -33,16 +33,16 @@ function Product({ product }: { product: Product }) {
 
   return (
     <>
-      <Card sx={{ width: "500px" }}>
+      <Card sx={{}}>
         <CardMedia>
           <img
             src={product.image}
-            width={"fit-content"}
-            height={"300px"}
-            style={{ objectFit: "cover", overflow: "hidden", margin: "auto" }}
+            width={'fit-content'}
+            height={'150px'}
+            style={{ objectFit: 'cover', overflow: 'hidden', margin: 'auto' }}
           />
         </CardMedia>
-        <Typography overflow={"clip"} variant="h5">
+        <Typography overflow={'clip'} variant="h5">
           {product.title}
         </Typography>
         <CardContent>
@@ -52,12 +52,11 @@ function Product({ product }: { product: Product }) {
         </CardContent>
         <CardActions>
           <Box
-            display={"flex"}
-            width={"100%"}
-            height={"100%"}
-            justifyContent={"end"}
-            bgcolor="black"
-            mt={"auto"}
+            display={'flex'}
+            width={'100%'}
+            height={'100%'}
+            justifyContent={'end'}
+            mt={'auto'}
           >
             <Button onClick={open} variant="contained" color="primary">
               View More
@@ -69,24 +68,24 @@ function Product({ product }: { product: Product }) {
       <Modal open={isOpen}>
         <Box
           sx={{
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            width: "fit-content",
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: 'fit-content',
             maxWidth: 1000,
             minWidth: 300,
-            bgcolor: "white",
-            border: "2px solid #000",
+            bgcolor: 'white',
+            border: '2px solid #000',
             boxShadow: 24,
             p: 4,
           }}
         >
           <Typography variant="h3">{product.title}</Typography>
-          <Box display={"inline-block"}>
+          <Box display={'inline-block'}>
             <Typography variant="body1">{product.description}</Typography>
           </Box>
-          <Box display={"flex"} width={"100%"} justifyContent={"end"}>
+          <Box display={'flex'} width={'100%'} justifyContent={'end'}>
             <Button onClick={close} variant="contained" color="error">
               Close
             </Button>
@@ -112,21 +111,21 @@ export default function Products() {
   });
 
   return (
-    <Stack direction={"column"}>
-      <Typography variant="h1" textAlign={"center"}>
+    <Stack direction={'column'}>
+      <Typography variant="h1" textAlign={'center'}>
         Products
       </Typography>
       {products.length === 0 && (
-        <CircularProgress size={40} sx={{ mx: "auto", my: "auto" }} />
+        <CircularProgress size={40} sx={{ mx: 'auto', my: 'auto' }} />
       )}
       <Box
-        flexWrap={"wrap"}
-        display={"flex"}
-        flexDirection={"row"}
+        flexWrap={'wrap'}
+        display={'flex'}
+        flexDirection={'row'}
         gap={3}
-        mx={"auto"}
-        width={"fit-content"}
-        justifyContent={"center"}
+        mx={'auto'}
+        width={'fit-content'}
+        justifyContent={'center'}
       >
         {products.map((product, i) => (
           <Product key={i} product={product} />

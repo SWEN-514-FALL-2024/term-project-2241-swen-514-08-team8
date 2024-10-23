@@ -1,7 +1,11 @@
 # ECommerce Website
 
-Team8's AWS Project
+Start of our README.md
 
-### Basic Terraform Commands:
+## AWS Tech Stack
 
-`Mon`
+- Lambda
+- S3
+- DynamoDB
+- API Gateway
+- Cognito
