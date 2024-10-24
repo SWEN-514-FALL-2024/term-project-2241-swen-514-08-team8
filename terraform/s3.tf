@@ -1,5 +1,5 @@
 resource "aws_s3_bucket" "ecombucket" {
-  bucket = "ecommerce-bucket-012910291021"
+  bucket = "ecommerce-bucket-${random_integer.random_suffix.result}"
   tags = {
     Name = "ecommerce-bucket"
   }
