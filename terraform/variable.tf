@@ -5,6 +5,6 @@ variable "instance_type" {
 }
 
 resource "random_integer" "random_suffix" {
-  min = 10000000000
-  max = 99999999999
+  min = 10000000
+  max = 99999999
 }
