@@ -127,10 +127,10 @@ export default function Products() {
         width={'fit-content'}
         justifyContent={'center'}
       >
-        <Product product={products[0]} />
-        {/* {products.map((product, i) => (
+        {/* <Product product={products[0]} /> */}
+        {products.map((product, i) => (
           <Product key={i} product={product} />
-        ))} */}
+        ))}
       </Box>
     </Stack>
   );
