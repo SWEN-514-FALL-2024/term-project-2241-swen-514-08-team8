@@ -3,6 +3,7 @@ resource "aws_s3_bucket" "ecombucket" {
   tags = {
     Name = "ecommerce-bucket"
   }
+  force_destroy = true
 }
 
 # Old upload version
@@ -22,22 +23,6 @@ resource "null_resource" "deploy_react_app" {
   }
 
   depends_on = [aws_s3_bucket.ecombucket] # Needs to run after ecombucket creation.
-}
-
-# Deletes the contents of the s3 bucket so we can delete it.
-resource "null_resource" "empty_bucket" {
-  provisioner "local-exec" {
-    command = <<EOT
-      aws s3 rm s3://${aws_s3_bucket.ecombucket.bucket} --recursive
-    EOT
-  }
-
-  # Ensure this runs before the bucket is deleted
-  triggers = {
-    bucket_name = aws_s3_bucket.ecombucket.bucket
-  }
-
-  depends_on = [aws_s3_bucket.ecombucket]
 }
 
 resource "aws_s3_bucket_public_access_block" "ecombucket_public_access_block" {
