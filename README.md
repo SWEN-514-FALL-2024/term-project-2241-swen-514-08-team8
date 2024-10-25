@@ -6,7 +6,7 @@ Start of our README.md
 
 You need to have the following softwares installed on your device
 
-- npm
+- npm (version >= 14)
 - terraform
 - aws cli (credentials configured)
 
