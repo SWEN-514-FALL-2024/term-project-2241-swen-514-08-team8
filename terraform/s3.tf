@@ -17,9 +17,7 @@ resource "aws_s3_bucket" "ecombucket" {
 # Null resource to trigger AWS CLI sync, uploading all our frontend files.
 resource "null_resource" "deploy_react_app" {
   provisioner "local-exec" {
-    command = <<EOT
-      cd ../app/frontend && npm install && npm run build && aws s3 sync ./dist s3://${aws_s3_bucket.ecombucket.bucket} --delete
-    EOT
+    command = "cd ../app/frontend && npm install && npm run build && aws s3 sync ./dist s3://${aws_s3_bucket.ecombucket.bucket} --delete"
   }
 
   depends_on = [aws_s3_bucket.ecombucket] # Needs to run after ecombucket creation.
