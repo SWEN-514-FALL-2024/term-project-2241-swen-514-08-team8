@@ -3,5 +3,4 @@
 /terraform/terraform.tfstate
 /terraform/terraform.tfstate.backup
 
-app/frontend/pnpm-lock.yml
-app/frontend/package-lock.json
+/ecommerce/package-lock.json
