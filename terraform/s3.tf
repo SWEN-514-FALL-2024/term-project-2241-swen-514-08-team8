@@ -6,14 +6,6 @@ resource "aws_s3_bucket" "ecombucket" {
   force_destroy = true
 }
 
-# Old index.html upload version
-# resource "aws_s3_object" "index" {
-#   bucket = aws_s3_bucket.ecombucket.bucket
-#   key = "index.html"
-#   source = "index.html"
-#   content_type = "text/html"  # Ensure correct MIME type
-# }
-
 # Null resource to execute AWS CLI sync after bucket creation, uploading all our frontend files.
 resource "null_resource" "deploy_react_app" {
   provisioner "local-exec" {
