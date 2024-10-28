@@ -40,7 +40,7 @@ variable "lambda_function_names" {
   ]
 }
 
-# There must be a better way to allow lambda permission. Maybe on
+# Allows our APIGateway to use the defined lambdas.
 resource "aws_lambda_permission" "allow_apigateway_all_functions" {
   for_each = toset(var.lambda_function_names)
 
@@ -49,6 +49,5 @@ resource "aws_lambda_permission" "allow_apigateway_all_functions" {
   function_name = each.value 
   principal     = "apigateway.amazonaws.com"
 
-  # Allow API Gateway to invoke any method on any resource of the specified API
-  source_arn    = "${aws_api_gateway_rest_api.ecommerce-api.execution_arn}/*" 
+  source_arn    = "${aws_api_gateway_rest_api.ecommerce-api.execution_arn}/*/*" 
 }
