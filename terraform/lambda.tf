@@ -1,5 +1,6 @@
 # To upload lambda functions in terraform, we need to zip them first.
-# It will be easier to upload all of our lambda functions if we group similar lambda functions in the same python
+# It will be easier to upload all of our lambda functions 
+# if we group similar lambda functions in the same python file
 data "archive_file" "zips" {
   type        = "zip"
   source_file = "${path.module}/../lambdas/products.py"
