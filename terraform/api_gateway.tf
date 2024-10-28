@@ -1,4 +1,5 @@
 
+
 resource "aws_api_gateway_rest_api" "ecommerce-api" {
   body = jsonencode({
     openapi = "3.0.1"
@@ -11,30 +12,30 @@ resource "aws_api_gateway_rest_api" "ecommerce-api" {
       "/products" = {
         get = {
           x-amazon-apigateway-integration = {
-            httpMethod           = "GET"
-            payloadFormatVersion = "1.0"
-            type                 = "HTTP_PROXY"
-            uri                  = "https://fakestoreapi.com/products"
+            type                 = "AWS_PROXY"
+            httpMethod           = "POST"
+            uri                  = "${aws_lambda_function.get-products.invoke_arn}"
+            payloadFormatVersion = "2.0"
           }
-          parameters = [
-            {
-              name     = "limit"
-              in       = "query"
-              required = false
-              schema = {
-                type = "integer"
-              }
-            },
-            {
-              name     = "sort"
-              in       = "query"
-              required = false
-              schema = {
-                type = "string"
-                enum = ["asc", "desc"]
-              }
-            }
-          ]
+          # parameters = [
+          #   {
+          #     name     = "limit"
+          #     in       = "query"
+          #     required = false
+          #     schema = {
+          #       type = "integer"
+          #     }
+          #   },
+          #   {
+          #     name     = "sort"
+          #     in       = "query"
+          #     required = false
+          #     schema = {
+          #       type = "string"
+          #       enum = ["asc", "desc"]
+          #     }
+          #   }
+          # ]
         }
         # post = {
         #   x-amazon-apigateway-integration = {
