@@ -1,5 +1,3 @@
-
-
 resource "aws_api_gateway_rest_api" "ecommerce-api" {
   body = jsonencode({
     openapi = "3.0.1"
@@ -10,6 +8,26 @@ resource "aws_api_gateway_rest_api" "ecommerce-api" {
 
     paths = {
       "/products" = {
+        # options = {
+        #   x-amazon-apigateway-integration = {
+        #     type                 = "MOCK"
+        #     requestTemplates     = { "application/json" = "{\"statusCode\": 200}" }
+        #     passthroughBehavior  = "WHEN_NO_MATCH"
+        #   }
+        #   responses = {
+        #     "200" = {
+        #       description = "Default response for CORS preflight requests."
+        #       headers = {
+        #         "Access-Control-Allow-Origin" = { schema = { type = "string" } }
+        #         "Access-Control-Allow-Methods" = { schema = { type = "string" } }
+        #         "Access-Control-Allow-Headers" = { schema = { type = "string" } }
+        #       }
+        #       content = {
+        #         "application/json" = { schema = { type = "object" } }
+        #       }
+        #     }
+        #   }
+        # }
         get = {
           x-amazon-apigateway-integration = {
             type                 = "AWS_PROXY"
@@ -17,6 +35,14 @@ resource "aws_api_gateway_rest_api" "ecommerce-api" {
             uri                  = "${aws_lambda_function.get-products.invoke_arn}"
             payloadFormatVersion = "2.0"
           }
+          # responses = {
+          #   "200" = {
+          #     headers = {
+          #       "Access-Control-Allow-Origin" = { schema = { type = "string" } }
+          #       "Access-Control-Allow-Methods" = { schema = { type = "string" } }
+          #     }
+          #   }
+          # }
           # parameters = [
           #   {
           #     name     = "limit"
@@ -37,32 +63,32 @@ resource "aws_api_gateway_rest_api" "ecommerce-api" {
           #   }
           # ]
         }
-        # post = {
-        #   x-amazon-apigateway-integration = {
-        #     httpMethod           = "POST"
-        #     payloadFormatVersion = "1.0"
-        #     type                 = "HTTP_PROXY"
-        #     uri                  = "https://fakestoreapi.com/products"
-        #   }
-        #   responses = {
-        #     "200" = {
-        #       content = {
-        #         "application/json" = {
-        #           schema = {
-        #             type = "object"
-        #           }
-        #         }
-        #       }
-        #       headers = {
-        #         "Access-Control-Allow-Origin" = {
-        #           schema = {
-        #             type = "string"
-        #           }
-        #         }
-        #       }
-        #     }
-        #   }
-        # }
+        post = {
+          x-amazon-apigateway-integration = {
+            type                 = "AWS_PROXY"
+            httpMethod           = "POST"
+            uri                  = "${aws_lambda_function.create-products.invoke_arn}"
+            payloadFormatVersion = "2.0"
+          }
+          responses = {
+            "200" = {
+              content = {
+                "application/json" = {
+                  schema = {
+                    type = "object"
+                  }
+                }
+              }
+              headers = {
+                "Access-Control-Allow-Origin" = {
+                  schema = {
+                    type = "string"
+                  }
+                }
+              }
+            }
+          }
+        }
       }
       "/products/{id}" = {
         get = {

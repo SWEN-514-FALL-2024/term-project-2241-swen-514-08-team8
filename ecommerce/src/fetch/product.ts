@@ -1,12 +1,14 @@
+import { SERVER_URL } from '../constants';
+
 // All endpoints provided by fakestoreapi.com
 export function useProducts() {
   // Change the urls to our API Gateway endpoints
   async function getProducts() {
-    return await getData("https://fakestoreapi.com/products/");
+    return await getData(SERVER_URL + '/products/');
   }
 
   async function getProductById(id: number) {
-    return await getData(`https://fakestoreapi.com/products/${id}`);
+    return await getData(`${SERVER_URL}/products/${id}`);
   }
 
   return {

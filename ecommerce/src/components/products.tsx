@@ -20,10 +20,8 @@ export type Product = {
   description: string;
   category: string;
   image: string;
-  rating: {
-    rate: number;
-    count: number;
-  };
+  rating_rate: number;
+  rating_count: number;
 };
 
 function Product({ product }: { product: Product }) {
@@ -47,7 +45,7 @@ function Product({ product }: { product: Product }) {
         </Typography>
         <CardContent>
           <Typography>
-            Ratings: {product.rating.rate} ({product.rating.count})
+            Ratings: {product.rating_rate} ({product.rating_count})
           </Typography>
         </CardContent>
         <CardActions>
@@ -108,7 +106,7 @@ export default function Products() {
       }
     }
     load();
-  });
+  }, []);
 
   return (
     <Stack direction={'column'}>
