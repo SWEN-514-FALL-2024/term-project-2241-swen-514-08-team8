@@ -6,13 +6,22 @@ resource "aws_s3_bucket" "ecombucket" {
   force_destroy = true
 }
 
+# Create our env file with the API-Gateway URL.
+resource "null_resource" "create_env_file" {
+  provisioner "local-exec" {
+    command = "rm -f ../ecommerce/.env && echo VITE_SERVER_URL=${aws_api_gateway_stage.ecommerce-api-stage.invoke_url} > ../ecommerce/.env"
+  }
+
+  depends_on = [aws_api_gateway_rest_api.ecommerce-api]
+}
+
 # Null resource to execute AWS CLI sync after bucket creation, uploading all our frontend files.
 resource "null_resource" "deploy_react_app" {
   provisioner "local-exec" {
     command = "cd ../ecommerce && npm install && npm run build && aws s3 sync ./dist s3://${aws_s3_bucket.ecombucket.bucket} --delete"
   }
 
-  depends_on = [aws_s3_bucket.ecombucket] # Needs to run after ecombucket creation.
+  depends_on = [aws_s3_bucket.ecombucket, null_resource.create_env_file] # Needs to run after ecombucket creation.
 }
 
 resource "aws_s3_bucket_public_access_block" "ecombucket_public_access_block" {

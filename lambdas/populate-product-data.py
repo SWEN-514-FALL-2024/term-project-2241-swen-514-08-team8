@@ -1,6 +1,7 @@
 import json
 import boto3
 import urllib3
+from decimal import Decimal
 
 def populate_products(event, context):
     table_name = event["table"]
@@ -20,7 +21,9 @@ def populate_products(event, context):
                 'price': str(product['price']),
                 'description': product['description'],
                 'category': product['category'],
-                'image': product['image']
+                'image': product['image'],
+                'rating_rate': int(product['rating']['rate']),
+                'rating_count': product['rating']['count'], 
             })
     
     return {
