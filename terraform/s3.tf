@@ -47,6 +47,8 @@ resource "aws_s3_bucket_policy" "ecombucket_policy" {
       }
     ]
   })
+
+  depends_on = [ aws_s3_bucket_public_access_block.ecombucket_public_access_block ]
 }
 
 
