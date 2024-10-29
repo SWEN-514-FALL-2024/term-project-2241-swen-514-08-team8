@@ -2,8 +2,8 @@ import json
 import boto3
 import urllib3
 
-def lambda_handler(event, context):
-    table_name = event['detail']['requestParameters']['tableName']
+def populate_products(event, context):
+    table_name = event["table"]
 
     http = urllib3.PoolManager()
     response = http.request("GET", "https://fakestoreapi.com/products")
@@ -15,9 +15,9 @@ def lambda_handler(event, context):
     with table.batch_writer() as batch:
         for product in products:
             batch.put_item(Item={
-                'id': str(product['id']),            
+                'ProductId': product['id'],            
                 'title': product['title'],
-                'price': product['price'],
+                'price': str(product['price']),
                 'description': product['description'],
                 'category': product['category'],
                 'image': product['image']

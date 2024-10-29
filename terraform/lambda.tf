@@ -8,6 +8,12 @@ data "archive_file" "zips" {
   output_path = "${path.module}/../lambdas/zips/products.zip"
 }
 
+data "archive_file" "zips1" {
+  type        = "zip"
+  source_file = "${path.module}/../lambdas/populate-product-data.py"
+  output_path = "${path.module}/../lambdas/zips/populate-product-data.py"
+}
+
 # get-products
 resource "aws_lambda_function" "get-products" {
   function_name = "ecommerce-get-products"
@@ -30,13 +36,26 @@ resource "aws_lambda_function" "create-products" {
   depends_on = [ aws_iam_role.lambda_iam_role ]
 }
 
+# populate products
+resource "aws_lambda_function" "populate-products_lambda" {
+  function_name = "ecommerce-populate-products"
+  role          = aws_iam_role.lambda_iam_role.arn
+  handler       = "populate-product-data.populate_products"
+  runtime       = "python3.12"
+  filename      = "${path.module}/../lambdas/zips/populate-product-data.py"
+  timeout = 10
+
+  depends_on = [ aws_iam_role.lambda_iam_role ]
+}
+
 # Unfortunately we need to hard code these function names.
 # There is an alternative, where we dynamically create all our lambdas in a single "aws_lambda_function" with a for-each loop.
 # This should work for now with our limited number of lambdas.
 variable "lambda_function_names" {
   default = [
     "ecommerce-get-products",
-    "ecommerce-create-products",    
+    "ecommerce-create-products",   
+    "ecommerce-populate-products",
   ]
 }
 
