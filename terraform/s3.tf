@@ -9,7 +9,7 @@ resource "aws_s3_bucket" "ecombucket" {
 # Create our env file with the API-Gateway URL.
 resource "null_resource" "create_env_file" {
   provisioner "local-exec" {
-    command = "rm -f ../ecommerce/.env && echo VITE_SERVER_URL=${aws_api_gateway_stage.ecommerce-api-stage.invoke_url} > ../ecommerce/.env"
+    command = "rm -f ../ecommerce/.env.production && echo VITE_SERVER_URL=${aws_api_gateway_stage.ecommerce-api-stage.invoke_url} > ../ecommerce/.env.production"
   }
 
   depends_on = [aws_api_gateway_rest_api.ecommerce-api]
