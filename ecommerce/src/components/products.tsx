@@ -31,18 +31,20 @@ function Product({ product }: { product: Product }) {
 
   return (
     <>
-      <Card sx={{}}>
-        <CardMedia>
-          <img
-            src={product.image}
-            width={'fit-content'}
-            height={'150px'}
-            style={{ objectFit: 'cover', overflow: 'hidden', margin: 'auto' }}
-          />
-        </CardMedia>
-        <Typography overflow={'clip'} variant="h5">
-          {product.title}
-        </Typography>
+      <Card sx={{ width: '450px' }}>
+        <Box display={'flex'} flexDirection={'row'}>
+          <CardMedia sx={{ m: 3 }}>
+            <img
+              src={product.image}
+              width={'fit-content'}
+              height={'150px'}
+              style={{ objectFit: 'cover', overflow: 'hidden', margin: 'auto' }}
+            />
+          </CardMedia>
+          <Typography overflow={'clip'} variant="h5" p={3}>
+            {product.title}
+          </Typography>
+        </Box>
         <CardContent>
           <Typography>
             Ratings: {product.rating_rate} ({product.rating_count})
