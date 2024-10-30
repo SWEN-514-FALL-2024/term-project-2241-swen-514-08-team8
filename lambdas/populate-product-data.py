@@ -18,7 +18,7 @@ def populate_products(event, context):
             batch.put_item(Item={
                 'ProductId': product['id'],            
                 'title': product['title'],
-                'price': str(product['price']),
+                'price': product['price'],
                 'description': product['description'],
                 'category': product['category'],
                 'image': product['image'],

@@ -36,12 +36,12 @@ function Product({ product }: { product: Product }) {
           <CardMedia sx={{ m: 3 }}>
             <img
               src={product.image}
-              width={'fit-content'}
+              width={'150px'}
               height={'150px'}
               style={{ objectFit: 'cover', overflow: 'hidden', margin: 'auto' }}
             />
           </CardMedia>
-          <Typography overflow={'clip'} variant="h5" p={3}>
+          <Typography overflow={'clip'} variant="h5" p={3} lineHeight={1}>
             {product.title}
           </Typography>
         </Box>
@@ -108,7 +108,7 @@ export default function Products() {
       }
     }
     load();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -129,9 +129,11 @@ export default function Products() {
         justifyContent={'center'}
       >
         {/* <Product product={products[0]} /> */}
-        {products.map((product, i) => (
-          <Product key={i} product={product} />
-        ))}
+        {products
+          .sort((p1, p2) => p1.category.localeCompare(p2.category)) // sort by category
+          .map((product, i) => (
+            <Product key={i} product={product} />
+          ))}
       </Box>
     </Stack>
   );

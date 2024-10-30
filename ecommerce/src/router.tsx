@@ -9,6 +9,7 @@ export const router = createBrowserRouter([
     element: <Home />,
     children: [
       {
+        // Redirects the root page '/' to /products.
         index: true,
         element: <Navigate to="/products" replace />,
       },
@@ -21,6 +22,5 @@ export const router = createBrowserRouter([
         element: <CreateProduct />,
       },
     ],
-    // errorElement: <Navigate to="/products" />,
   },
 ]);
