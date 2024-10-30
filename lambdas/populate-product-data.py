@@ -8,7 +8,7 @@ def populate_products(event, context):
 
     http = urllib3.PoolManager()
     response = http.request("GET", "https://fakestoreapi.com/products")
-    products = json.loads(response.data.decode('utf-8'))
+    products = json.loads(response.data.decode('utf-8'), parse_float=Decimal)
 
     dynamodb = boto3.resource('dynamodb')
     table = dynamodb.Table(table_name)
@@ -22,7 +22,7 @@ def populate_products(event, context):
                 'description': product['description'],
                 'category': product['category'],
                 'image': product['image'],
-                'rating_rate': int(product['rating']['rate']),
+                'rating_rate': product['rating']['rate'],
                 'rating_count': product['rating']['count'], 
             })
     
