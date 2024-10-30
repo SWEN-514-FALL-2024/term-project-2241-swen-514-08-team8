@@ -99,12 +99,15 @@ function Product({ product }: { product: Product }) {
 export default function Products() {
   const { getProducts } = useProducts();
   const [products, setProducts] = useState<Product[]>([]);
+  const [failedRequest, setFailedRequest] = useState<boolean>(false);
 
   useEffect(() => {
     async function load() {
       const res = await getProducts();
       if (res.success) {
         setProducts(res.json as Product[]);
+      } else {
+        setFailedRequest(true);
       }
     }
     load();
@@ -128,6 +131,9 @@ export default function Products() {
         width={'fit-content'}
         justifyContent={'center'}
       >
+        {failedRequest && (
+          <Typography variant='h3'>Failed to reach server. Make sure terraform is running!</Typography>)
+          }
         {/* <Product product={products[0]} /> */}
         {products
           .sort((p1, p2) => p1.category.localeCompare(p2.category)) // sort by category
