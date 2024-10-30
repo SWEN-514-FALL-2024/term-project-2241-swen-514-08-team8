@@ -41,6 +41,8 @@ def get_products(event, context):
 
 
 def create_product(event, context):
+    table = dynamodb.Table('Product')
+
     # Get data.
     product_id = event['id']
     product_name = event['name']
