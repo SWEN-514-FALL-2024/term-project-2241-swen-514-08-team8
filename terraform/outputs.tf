@@ -7,3 +7,13 @@ output "api_gateway_url" {
   value       = aws_api_gateway_stage.ecommerce-api-stage.invoke_url
   description = "URL of ecommerce API"
 }
+
+output "client-id" {
+  value = aws_cognito_user_pool_client.app_client.id
+  description = "cognito user client-id"
+}
+
+output "user-pool-id" {
+  value = aws_cognito_user_pool.my_user_pool.id
+  description = "cognito user-pool-id"
+}
