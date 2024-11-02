@@ -6,13 +6,31 @@ resource "aws_s3_bucket" "ecombucket" {
   force_destroy = true
 }
 
-# Create our env file with the API-Gateway URL.
+
+# Create our env file with the API-Gateway URL, including the cognito user_pool_id and client_id.
 resource "null_resource" "create_env_file" {
   provisioner "local-exec" {
-    command = "rm -f ../ecommerce/.env.production && echo VITE_SERVER_URL=${aws_api_gateway_stage.ecommerce-api-stage.invoke_url} > ../ecommerce/.env.production"
+    command = <<EOT
+      echo "VITE_SERVER_URL=${aws_api_gateway_stage.ecommerce-api-stage.invoke_url}" > ../ecommerce/.env.production
+      echo "VITE_COGNITO_CLIENT_ID=${aws_cognito_user_pool_client.app_client.id}" >> ../ecommerce/.env.production
+      echo "VITE_COGNITO_USER_POOL_ID=${aws_cognito_user_pool.my_user_pool.id}" >> ../ecommerce/.env.production
+    EOT
   }
 
-  depends_on = [aws_api_gateway_rest_api.ecommerce-api]
+  depends_on = [
+    aws_cognito_user_pool_client.app_client,
+    aws_cognito_user_pool.my_user_pool,
+    aws_api_gateway_stage.ecommerce-api-stage
+  ]
+}
+
+
+# delete our env file when run terraform destroy
+resource "null_resource" "delete_env_production_on_destroy" {
+  provisioner "local-exec" {
+    when    = destroy
+    command = "rm -f ../ecommerce/.env.production"
+  }
 }
 
 # Null resource to execute AWS CLI sync after bucket creation, uploading all our frontend files.

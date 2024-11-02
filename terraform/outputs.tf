@@ -8,12 +8,12 @@ output "api_gateway_url" {
   description = "URL of ecommerce API"
 }
 
-output "client-id" {
+output "client_id" {
   value = aws_cognito_user_pool_client.app_client.id
-  description = "cognito user client-id"
+  description = "cognito user client id"
 }
 
-output "user-pool-id" {
+output "user_pool_id" {
   value = aws_cognito_user_pool.my_user_pool.id
-  description = "cognito user-pool-id"
+  description = "cognito user pool id"
 }

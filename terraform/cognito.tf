@@ -1,5 +1,6 @@
 resource "aws_cognito_user_pool" "my_user_pool" {
   name = "my_user_pool"
+  deletion_protection = "INACTIVE"
 
   username_attributes = ["email"]
   auto_verified_attributes = ["email"]
@@ -23,28 +24,28 @@ resource "aws_cognito_user_pool_client" "app_client" {
   supported_identity_providers = ["COGNITO"]
 }
 
-resource "aws_cognito_user_group" "admin_group" {
-  name         = "Admins"
-  user_pool_id = aws_cognito_user_pool.my_user_pool.id
-  precedence   = 1
+# resource "aws_cognito_user_group" "admin_group" {
+#   name         = "Admins"
+#   user_pool_id = aws_cognito_user_pool.my_user_pool.id
+#   precedence   = 1
 
-  role_arn = aws_iam_role.admin_role.arn
-}
+#   role_arn = aws_iam_role.admin_role.arn
+# }
 
-resource "aws_iam_role" "admin_role" {
-  name = "Cognito_Admin_Role"
+# resource "aws_iam_role" "admin_role" {
+#   name = "Cognito_Admin_Role"
 
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Action = "sts:AssumeRole"
-        Effect = "Allow"
-        Principal = {
-          Federated = "cognito-identity.amazonaws.com"
-        }
-      },
-    ]
-  })
-}
+#   assume_role_policy = jsonencode({
+#     Version = "2012-10-17"
+#     Statement = [
+#       {
+#         Action = "sts:AssumeRole"
+#         Effect = "Allow"
+#         Principal = {
+#           Federated = "cognito-identity.amazonaws.com"
+#         }
+#       },
+#     ]
+#   })
+# }
 
