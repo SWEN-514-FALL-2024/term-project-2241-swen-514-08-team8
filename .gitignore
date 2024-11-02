@@ -6,3 +6,5 @@
 /ecommerce/package-lock.json
 /ecommerce/pnpm-lock.yaml
 /lambdas/zips/
+.DS_Store
+terraform.tfstate
