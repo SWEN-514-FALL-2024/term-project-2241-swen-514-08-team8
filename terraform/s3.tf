@@ -27,20 +27,20 @@ resource "null_resource" "add_client_id_to_env" {
 
 resource "null_resource" "add_user_pool_id_to_env" {
   provisioner "local-exec" {
-    command = "echo VITE_COGNITO_USER_POOL_ID=${aws_cognito_user_pool.my_user_pool.id} >> ../ecommerce/.env.production"
+    command = "echo VITE_COGNITO_USER_POOL_ID=${aws_cognito_user_pool.my_user_pool.id} > ../ecommerce/.env.production"
   }
   depends_on = [ aws_cognito_user_pool.my_user_pool ]
 
 }
 
-
-# delete our env file when run terraform destroy
-resource "null_resource" "delete_env_production_on_destroy" {
-  provisioner "local-exec" {
-    when    = destroy
-    command = "rm -f ../ecommerce/.env.production"
-  }
-}
+# doesn't work for windows system
+# # delete our env file when run terraform destroy
+# resource "null_resource" "delete_env_production_on_destroy" {
+#   provisioner "local-exec" {
+#     when    = destroy
+#     command = "rm -f ../ecommerce/.env.production"
+#   }
+# }
 
 # Null resource to execute AWS CLI sync after bucket creation, uploading all our frontend files.
 resource "null_resource" "deploy_react_app" {
