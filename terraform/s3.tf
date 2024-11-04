@@ -6,32 +6,42 @@ resource "aws_s3_bucket" "ecombucket" {
   force_destroy = true
 }
 
-
-# Create our env file with the API-Gateway URL, including the cognito user_pool_id and client_id.
-resource "null_resource" "create_env_file" {
-  provisioner "local-exec" {
-    command = "echo VITE_SERVER_URL=${aws_api_gateway_stage.ecommerce-api-stage.invoke_url} >> ../ecommerce/.env.production"
-  }
-
-  depends_on = [aws_api_gateway_stage.ecommerce-api-stage]
+resource "local_sensitive_file" "production_env" {
+  content = <<EOF
+VITE_COGNITO_USER_POOL_ID=${aws_cognito_user_pool.my_user_pool.id}
+VITE_COGNITO_CLIENT_ID=${aws_cognito_user_pool_client.app_client.id}
+VITE_SERVER_URL=${aws_api_gateway_stage.ecommerce-api-stage.invoke_url}
+EOF
+  filename = "${path.module}/../ecommerce/.env"
+  depends_on = [ aws_cognito_user_pool.my_user_pool, aws_cognito_user_pool_client.app_client, aws_api_gateway_stage.ecommerce-api-stage ]
 }
 
-resource "null_resource" "add_client_id_to_env" {
-  provisioner "local-exec" {
-    command = "echo VITE_COGNITO_CLIENT_ID=${aws_cognito_user_pool_client.app_client.id} >> ../ecommerce/.env.production"
-  }
+
+# # Create our env file with the API-Gateway URL, including the cognito user_pool_id and client_id.
+# resource "null_resource" "create_env_file" {
+#   provisioner "local-exec" {
+#     command = "echo VITE_SERVER_URL=${aws_api_gateway_stage.ecommerce-api-stage.invoke_url} >> ../ecommerce/.env.production"
+#   }
+
+#   depends_on = [aws_api_gateway_stage.ecommerce-api-stage]
+# }
+
+# resource "null_resource" "add_client_id_to_env" {
+#   provisioner "local-exec" {
+#     command = "echo VITE_COGNITO_CLIENT_ID=${aws_cognito_user_pool_client.app_client.id} >> ../ecommerce/.env.production"
+#   }
   
-  depends_on = [ aws_cognito_user_pool_client.app_client ]
+#   depends_on = [ aws_cognito_user_pool_client.app_client ]
 
-}
+# }
 
-resource "null_resource" "add_user_pool_id_to_env" {
-  provisioner "local-exec" {
-    command = "echo VITE_COGNITO_USER_POOL_ID=${aws_cognito_user_pool.my_user_pool.id} > ../ecommerce/.env.production"
-  }
-  depends_on = [ aws_cognito_user_pool.my_user_pool ]
+# resource "null_resource" "add_user_pool_id_to_env" {
+#   provisioner "local-exec" {
+#     command = "echo VITE_COGNITO_USER_POOL_ID=${aws_cognito_user_pool.my_user_pool.id} > ../ecommerce/.env.production"
+#   }
+#   depends_on = [ aws_cognito_user_pool.my_user_pool ]
 
-}
+# }
 
 # doesn't work for windows system
 # # delete our env file when run terraform destroy
@@ -48,7 +58,7 @@ resource "null_resource" "deploy_react_app" {
     command = "cd ../ecommerce && npm install && npm run build && aws s3 sync ./dist s3://${aws_s3_bucket.ecombucket.bucket} --delete"
   }
 
-  depends_on = [aws_s3_bucket.ecombucket, null_resource.create_env_file] # Needs to run after ecombucket creation.
+  depends_on = [aws_s3_bucket.ecombucket, local_sensitive_file.production_env] # Needs to run after ecombucket creation.
 }
 
 resource "aws_s3_bucket_public_access_block" "ecombucket_public_access_block" {
