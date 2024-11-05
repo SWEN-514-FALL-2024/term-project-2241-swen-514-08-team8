@@ -16,42 +16,6 @@ EOF
   depends_on = [ aws_cognito_user_pool.my_user_pool, aws_cognito_user_pool_client.app_client, aws_api_gateway_stage.ecommerce-api-stage ]
 }
 
-
-# # Create our env file with the API-Gateway URL, including the cognito user_pool_id and client_id.
-# resource "null_resource" "create_env_file" {
-#   provisioner "local-exec" {
-#     command = "echo VITE_SERVER_URL=${aws_api_gateway_stage.ecommerce-api-stage.invoke_url} >> ../ecommerce/.env.production"
-#   }
-
-#   depends_on = [aws_api_gateway_stage.ecommerce-api-stage]
-# }
-
-# resource "null_resource" "add_client_id_to_env" {
-#   provisioner "local-exec" {
-#     command = "echo VITE_COGNITO_CLIENT_ID=${aws_cognito_user_pool_client.app_client.id} >> ../ecommerce/.env.production"
-#   }
-  
-#   depends_on = [ aws_cognito_user_pool_client.app_client ]
-
-# }
-
-# resource "null_resource" "add_user_pool_id_to_env" {
-#   provisioner "local-exec" {
-#     command = "echo VITE_COGNITO_USER_POOL_ID=${aws_cognito_user_pool.my_user_pool.id} > ../ecommerce/.env.production"
-#   }
-#   depends_on = [ aws_cognito_user_pool.my_user_pool ]
-
-# }
-
-# doesn't work for windows system
-# # delete our env file when run terraform destroy
-# resource "null_resource" "delete_env_production_on_destroy" {
-#   provisioner "local-exec" {
-#     when    = destroy
-#     command = "rm -f ../ecommerce/.env.production"
-#   }
-# }
-
 # Null resource to execute AWS CLI sync after bucket creation, uploading all our frontend files.
 resource "null_resource" "deploy_react_app" {
   provisioner "local-exec" {
