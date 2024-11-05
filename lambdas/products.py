@@ -48,6 +48,8 @@ def create_product(event, context):
     product_name = event['name']
     price = event['price']
     in_stock = event['in_stock']
+    
+    nextOrderId = response['Attributes']['count']
 
     # insert into table
     response = client.put_item(

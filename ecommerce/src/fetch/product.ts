@@ -1,3 +1,4 @@
+import { Product } from '../components/products';
 import { SERVER_URL } from '../constants';
 
 // All endpoints provided by fakestoreapi.com
@@ -11,9 +12,20 @@ export function useProducts() {
     return await getData(`${SERVER_URL}/products/${id}`);
   }
 
+  async function createProduct(product: Omit<Product, "id">) {
+    return await getData(`${SERVER_URL}/products/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(product),
+    });
+  }
+
   return {
     getProducts,
     getProductById,
+    createProduct
   };
 }
 
