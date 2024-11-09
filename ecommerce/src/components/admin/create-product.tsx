@@ -57,10 +57,10 @@ export default function CreateProduct() {
             label="Category"
             slotProps={{ inputLabel: { shrink: true } }}
             options={[
-              { label: "Men's Clothing", value: "mens_clothing" },
-              { label: "Women's Clothing", value: "womens_clothing" },
-              { label: "Electronics", value: "electronics" },
-              { label: "Jewelry", value: "jewelry" },
+              { label: "Men's Clothing", id: "mens_clothing" },
+              { label: "Women's Clothing", id: "womens_clothing" },
+              { label: "Electronics", id: "electronics" },
+              { label: "Jewelry", id  : "jewelry" },
             ]}
           />
           <TextFieldElement
@@ -97,6 +97,11 @@ export default function CreateProduct() {
             fullWidth
             variant="contained"
             startIcon={<Create />}
+            onClick={() => {
+              form.handleSubmit((data) => {
+                console.log(data);
+              });
+            }}
           >
             Create
           </Button>
