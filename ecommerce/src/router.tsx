@@ -2,7 +2,8 @@ import { createBrowserRouter, Navigate } from 'react-router-dom';
 import CreateProduct from './components/create-product';
 import Home from './components/home';
 import Products from './components/products';
-import Checkout from './components/checkout'
+import Checkout from './components/checkout';
+import Transactions from './components/transactions';
 import Login from './components/login';
 import SignUp  from './components/signup';
 import ConfirmUser from './components/confirmUser';
@@ -40,6 +41,10 @@ export const router = createBrowserRouter([
       {
         path: "checkout",
         element: <Checkout />,
+      },
+      {
+        path: "transactions",
+        element: <Transactions />,
       },
     ],
   },

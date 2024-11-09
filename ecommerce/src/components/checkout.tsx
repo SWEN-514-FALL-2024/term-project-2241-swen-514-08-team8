@@ -3,12 +3,12 @@ import {
     Button,
     Card,
     CardActions,
-    CardContent,
     CardMedia,
     CircularProgress,
     Modal,
     Stack,
     Typography,
+    SxProps,
   } from '@mui/material';
   import { useEffect, useState } from 'react';
   import { useProducts } from '../fetch/product';
@@ -24,6 +24,21 @@ import {
     rating_rate: number;
     rating_count: number;
   };
+
+  export type User = {
+    id: number;
+    username: string;
+    email: string;
+  };
+
+  const CustomGridStyle: SxProps = {
+    border: 0,
+    borderBottom: 1, 
+    borderborderRadius: 0, 
+    borderStyle: 'dashed', 
+    boxShadow:0,
+    mx: 0
+  }
   
   function CheckoutItem({ checkoutItem }: { checkoutItem: CheckoutItem }) {
     const [isOpen, setOpen] = useState(false);
@@ -47,6 +62,11 @@ import {
             </Typography>
           </Box>
           <CardActions>
+
+          <Typography overflow={'ellipsis'} variant="h6" p={2} lineHeight={.5}>
+              ${checkoutItem.price}
+            </Typography>
+
             <Box
               display={'flex'}
               width={'100%'}
@@ -100,6 +120,8 @@ import {
     const { getProducts } = useProducts();
     const [products, setProducts] = useState<CheckoutItem[]>([]);
     const [failedRequest, setFailedRequest] = useState<boolean>(false);
+
+    const placeholderUser: User = {id: 4, username: "John Placeholder", email: "examp1e@mail.gov"}
   
     useEffect(() => {
       async function load() {
@@ -125,7 +147,7 @@ import {
             gridTemplateColumns: 'repeat(7, 1fr)',
             gap: 1,
             gridTemplateRows: 'auto',
-            gridTemplateAreas: `"main main main . sidebar sidebar sidebar"`,
+            gridTemplateAreas: `"main main main . sidebar sidebar ."`,
         }}
         >  
             <Box sx={{ gridArea: 'main'}}>
@@ -157,7 +179,22 @@ import {
                 <Typography variant="h2" textAlign={'center'}>
                     Personal Info
                 </Typography>
-                <Button onClick={() => navigate('/home/transactions')} variant="contained" color="primary">
+                <Box sx={{
+                    width: '100%', 
+                    border: 1,
+                    boxShadow:0
+                }}>
+                    <Box>
+                        <Typography variant="h5" textAlign={'left'} sx={CustomGridStyle}>
+                            Name: {placeholderUser.username}
+                        </Typography>
+
+                        <Typography variant="h5" textAlign={'left'} sx={CustomGridStyle}>
+                            Email: {placeholderUser.email}
+                        </Typography>
+                    </Box>
+                </Box>
+                <Button onClick={() => navigate('/home/transactions')} variant="contained" color="primary" sx={{mt: 1}}>
                     Purchase
                 </Button>
             </Box>
