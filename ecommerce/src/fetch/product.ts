@@ -29,6 +29,28 @@ export function useProducts() {
   };
 }
 
+export function useCart(){
+  async function addToCart(prodId:number) {
+    return await getData(`${SERVER_URL}/cart/`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${sessionStorage.getItem('accessToken')}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ id : prodId}),
+    });
+  }
+
+  async function getCart() {
+    return await getData(SERVER_URL + '/cart/');
+  }
+
+  return {
+    addToCart,
+    getCart
+  };
+}
+
 type RequestResult = {
   json: object;
   success: boolean;

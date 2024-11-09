@@ -7,6 +7,57 @@ resource "aws_api_gateway_rest_api" "ecommerce-api" {
     }
 
     paths = {
+      "/cart" = {
+        get = {
+          x-amazon-apigateway-integration = {
+            type                 = "AWS_PROXY"
+            httpMethod           = "POST"
+            uri                  = "${aws_lambda_function.get_cart_lambda.invoke_arn}"
+            payloadFormatVersion = "2.0"
+          }
+        }
+        post = {
+          x-amazon-apigateway-integration = {
+            type                 = "AWS_PROXY"
+            httpMethod           = "POST"
+            uri                  = "${aws_lambda_function.add_to_cart_lambda.invoke_arn}"
+            payloadFormatVersion = "2.0"
+          }
+          security = [
+            {
+              CognitoAuthorizer = []
+            }
+          ]
+          responses = {
+            "200" = {
+              content = {
+                "application/json" = {
+                  schema = {
+                    type = "object"
+                  }
+                }
+              }
+              headers = {
+                "Access-Control-Allow-Origin" = {
+                  schema = {
+                    type = "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+        components = {
+          securitySchemes = {
+            CognitoAuthorizer = {
+              type = "apiKey"
+              name = "Authorization"
+              in   = "header"
+              x-amazon-apigateway-authtype = "cognito_user_pools"
+            }
+        }
+    }
+      }
       "/products" = {
         # options = {
         #   x-amazon-apigateway-integration = {
@@ -127,6 +178,13 @@ resource "aws_api_gateway_rest_api" "ecommerce-api" {
     }
   })
   name = "ECommerceAPI"
+}
+
+resource "aws_api_gateway_authorizer" "cognito_authorizer" {
+  name          = "CognitoAuthorizer"
+  rest_api_id   = aws_api_gateway_rest_api.ecommerce-api.id
+  type          = "COGNITO_USER_POOLS"
+  provider_arns = [aws_cognito_user_pool.my_user_pool.arn]
 }
 
 resource "aws_api_gateway_deployment" "ecommerce-api" {

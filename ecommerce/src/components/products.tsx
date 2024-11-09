@@ -11,7 +11,7 @@ import {
   Typography,
 } from '@mui/material';
 import { useEffect, useState } from 'react';
-import { useProducts } from '../fetch/product';
+import { useCart, useProducts } from '../fetch/product';
 
 export type Product = {
   id: number;
@@ -57,7 +57,10 @@ function Product({ product }: { product: Product }) {
             height={'100%'}
             justifyContent={'end'}
             mt={'auto'}
-          >
+          >            
+            <Button onClick={() => handleAddToCart(product.id)} variant="contained" color="secondary">
+              Add to Cart
+            </Button>
             <Button onClick={open} variant="contained" color="primary">
               View More
             </Button>
@@ -95,6 +98,11 @@ function Product({ product }: { product: Product }) {
     </>
   );
 }
+
+const handleAddToCart = async (productId: number) => {
+  const { addToCart } = useCart();
+  addToCart(productId)
+};
 
 export default function Products() {
   const { getProducts } = useProducts();
