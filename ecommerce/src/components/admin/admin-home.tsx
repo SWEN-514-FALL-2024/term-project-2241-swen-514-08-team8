@@ -1,6 +1,9 @@
 import { Box, Button, Stack, Typography } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 
 export default function AdminHome() {
+  const nav = useNavigate();
+
   return (
     <>
       <Box mt={3}>
@@ -20,7 +23,12 @@ export default function AdminHome() {
           <Typography variant="h2" textAlign={"center"}>
             Product Operations
           </Typography>
-          <Button fullWidth sx={{ py: 3 }} variant="contained">
+          <Button
+            fullWidth
+            sx={{ py: 3 }}
+            variant="contained"
+            onClick={() => nav("/admin/create-product")}
+          >
             Create Product
           </Button>
           <Button fullWidth sx={{ py: 3 }} variant="contained">

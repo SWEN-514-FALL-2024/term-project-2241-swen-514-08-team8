@@ -45,7 +45,7 @@ export const router = createBrowserRouter([
         element: <AdminHome />,
       },
       {
-        index: true,
+        path: "create-product",
         element: <CreateProduct />,
       },
     ],
