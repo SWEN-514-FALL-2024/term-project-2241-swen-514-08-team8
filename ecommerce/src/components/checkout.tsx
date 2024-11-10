@@ -21,8 +21,7 @@ import {
     description: string;
     category: string;
     image: string;
-    rating_rate: number;
-    rating_count: number;
+    amountOrdered?: number
   };
 
   export type User = {
@@ -40,7 +39,7 @@ import {
     mx: 0
   }
   
-  function CheckoutItem({ checkoutItem }: { checkoutItem: CheckoutItem }) {
+  function CheckoutItem({ checkoutItem }: { checkoutItem: CheckoutItem }, {}) {
     const [isOpen, setOpen] = useState(false);
     const close = () => setOpen(false);
     const open = () => setOpen(true);
@@ -71,15 +70,22 @@ import {
               display={'flex'}
               width={'100%'}
               height={'100%'}
-              justifyContent={'end'}
-              mt={'auto'}
+              // flexDirection={'column'}
+              justifyContent={'flex-end'}
+              // mt={'auto'}
+              ml={'auto'}
             >
-              <Button onClick={open} variant="contained" color="primary" sx={{ ml: 1 }}>
-                View More
-              </Button>
-              <Button onClick={open} variant="contained" color="error" sx={{ ml: 1 }}>
-                Remove
-              </Button>
+              <Typography overflow={'ellipsis'} variant="h6" p={2} lineHeight={1}>
+                Amount Ordered: {checkoutItem.amountOrdered} N/A
+              </Typography>
+              <Box flexDirection={'row'}>
+                <Button onClick={open} variant="contained" color="primary" sx={{ ml: 1 }}>
+                  View More
+                </Button>
+                {/* <Button onClick={() => removeItem(checkoutItem.id)} variant="contained" color="error" sx={{ ml: 1 }}>
+                  Remove
+                </Button> */}
+              </Box>
             </Box>
           </CardActions>
         </Card>
@@ -122,6 +128,10 @@ import {
     const [failedRequest, setFailedRequest] = useState<boolean>(false);
 
     const placeholderUser: User = {id: 4, username: "John Placeholder", email: "examp1e@mail.gov"}
+
+    // const removeItem = (itemId: number) => {
+    //   setProducts(products.filter((product) => product.id = itemId))
+    // }
   
     useEffect(() => {
       async function load() {
@@ -191,6 +201,13 @@ import {
 
                         <Typography variant="h5" textAlign={'left'} sx={CustomGridStyle}>
                             Email: {placeholderUser.email}
+                        </Typography>
+                        
+                        <Typography variant="h5" textAlign={'left'} sx={CustomGridStyle}>
+                            Total Price: {products.length !== 0 && products
+                              .map((product) => product.price)
+                              .reduce((total, price) => parseFloat((total+price).toFixed(2)))
+                            }
                         </Typography>
                     </Box>
                 </Box>
