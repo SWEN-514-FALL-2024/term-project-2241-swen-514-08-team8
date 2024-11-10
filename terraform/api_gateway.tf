@@ -8,26 +8,26 @@ resource "aws_api_gateway_rest_api" "ecommerce-api" {
 
     paths = {
       "/products" = {
-        # options = {
-        #   x-amazon-apigateway-integration = {
-        #     type                 = "MOCK"
-        #     requestTemplates     = { "application/json" = "{\"statusCode\": 200}" }
-        #     passthroughBehavior  = "WHEN_NO_MATCH"
-        #   }
-        #   responses = {
-        #     "200" = {
-        #       description = "Default response for CORS preflight requests."
-        #       headers = {
-        #         "Access-Control-Allow-Origin" = { schema = { type = "string" } }
-        #         "Access-Control-Allow-Methods" = { schema = { type = "string" } }
-        #         "Access-Control-Allow-Headers" = { schema = { type = "string" } }
-        #       }
-        #       content = {
-        #         "application/json" = { schema = { type = "object" } }
-        #       }
-        #     }
-        #   }
-        # }
+        options = {
+          x-amazon-apigateway-integration = {
+            type                 = "MOCK"
+            requestTemplates     = { "application/json" = "{\"statusCode\": 200}" }
+            passthroughBehavior  = "WHEN_NO_MATCH"
+          }
+          responses = {
+            "200" = {
+              description = "Default response for CORS preflight requests."
+              headers = {
+                "Access-Control-Allow-Origin" = { schema = { type = "string" } }
+                "Access-Control-Allow-Methods" = { schema = { type = "string" } }
+                "Access-Control-Allow-Headers" = { schema = { type = "string" } }
+              }
+              content = {
+                "application/json" = { schema = { type = "object" } }
+              }
+            }
+          }
+        }
         get = {
           x-amazon-apigateway-integration = {
             type                 = "AWS_PROXY"

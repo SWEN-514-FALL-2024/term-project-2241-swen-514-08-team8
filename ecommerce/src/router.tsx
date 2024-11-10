@@ -7,6 +7,7 @@ import ConfirmUser from "./components/confirmUser";
 import AdminOutlet from "./components/admin/admin-outlet";
 import AdminHome from "./components/admin/admin-home";
 import CreateProduct from "./components/admin/create-product";
+import ErrorPage from "./components/error-page";
 
 export const router = createBrowserRouter([
   {
@@ -49,5 +50,10 @@ export const router = createBrowserRouter([
         element: <CreateProduct />,
       },
     ],
+  },
+  {
+    // Any other page provided
+    path: "*",
+    element: <ErrorPage />,
   },
 ]);

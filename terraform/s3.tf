@@ -61,7 +61,7 @@ resource "aws_s3_bucket_website_configuration" "s3_website_config" {
   }
 
   error_document {
-    key = "error.html"
+    key = "index.html" // Page refreshing in React Router
   }
 
   depends_on = [ aws_s3_bucket_public_access_block.ecombucket_public_access_block ]

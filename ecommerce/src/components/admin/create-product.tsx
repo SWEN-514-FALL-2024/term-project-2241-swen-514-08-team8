@@ -60,7 +60,7 @@ export default function CreateProduct() {
               { label: "Men's Clothing", id: "mens_clothing" },
               { label: "Women's Clothing", id: "womens_clothing" },
               { label: "Electronics", id: "electronics" },
-              { label: "Jewelry", id  : "jewelry" },
+              { label: "Jewelry", id: "jewelry" },
             ]}
           />
           <TextFieldElement
@@ -82,6 +82,20 @@ export default function CreateProduct() {
             label="Product Photo"
             slotProps={{ inputLabel: { shrink: true } }}
           />
+          <Stack direction={"row"} gap={2}>
+            <TextFieldElement
+              name="Rating Count"
+              type="number"
+              label="# of Ratings"
+              slotProps={{ inputLabel: { shrink: true } }}
+            />
+            <TextFieldElement
+              name="ProductImage"
+              type="number"
+              label="Product Photo"
+              slotProps={{ inputLabel: { shrink: true } }}
+            />
+          </Stack>
         </Stack>
         <Stack direction={"row"} gap={2} mt={3}>
           <Button
