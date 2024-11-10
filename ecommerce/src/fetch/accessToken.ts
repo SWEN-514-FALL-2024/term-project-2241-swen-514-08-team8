@@ -1,12 +1,12 @@
 // tokenStore.ts
-let tokens: string | null = null;
+let tokens: string = "";
 
 export const setToken = (token: string) => {
   tokens = token;
 };
 
 export const hasToken = () => {
-  return tokens !== null;
+  return tokens !== "";
 };
 
 export const getTokens = () => {
@@ -14,6 +14,6 @@ export const getTokens = () => {
 };
 
 export const clearTokens = () => {
-  tokens = null;
+  tokens = "";
 };
  
