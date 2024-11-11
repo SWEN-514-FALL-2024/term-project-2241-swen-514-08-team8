@@ -1,6 +1,5 @@
 import { createBrowserRouter, Navigate } from "react-router-dom";
 import Home from "./components/home";
-import Products from "./components/products";
 import Login from "./components/login";
 import SignUp from "./components/signup";
 import ConfirmUser from "./components/confirmUser";
@@ -8,6 +7,7 @@ import AdminOutlet from "./components/admin/admin-outlet";
 import AdminHome from "./components/admin/admin-home";
 import CreateProduct from "./components/admin/create-product";
 import ErrorPage from "./components/error-page";
+import { Products } from "./components/products";
 
 export const router = createBrowserRouter([
   {

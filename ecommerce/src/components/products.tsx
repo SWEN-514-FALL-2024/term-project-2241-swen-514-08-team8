@@ -9,9 +9,9 @@ import {
   Modal,
   Stack,
   Typography,
-} from '@mui/material';
-import { useEffect, useState } from 'react';
-import { useProducts } from '../fetch/product';
+} from "@mui/material";
+import { useEffect, useState } from "react";
+import { useProducts } from "../fetch/product";
 
 export type Product = {
   id: number;
@@ -24,24 +24,24 @@ export type Product = {
   rating_count: number;
 };
 
-function Product({ product }: { product: Product }) {
+export function Product({ product }: { product: Product }) {
   const [isOpen, setOpen] = useState(false);
   const close = () => setOpen(false);
   const open = () => setOpen(true);
 
   return (
     <>
-      <Card sx={{ width: '450px' }}>
-        <Box display={'flex'} flexDirection={'row'}>
+      <Card sx={{ width: "450px" }}>
+        <Box display={"flex"} flexDirection={"row"}>
           <CardMedia sx={{ m: 3 }}>
             <img
               src={product.image}
-              width={'150px'}
-              height={'150px'}
-              style={{ objectFit: 'cover', overflow: 'hidden', margin: 'auto' }}
+              width={"150px"}
+              height={"150px"}
+              style={{ objectFit: "cover", overflow: "hidden", margin: "auto" }}
             />
           </CardMedia>
-          <Typography overflow={'clip'} variant="h5" p={3} lineHeight={1}>
+          <Typography overflow={"clip"} variant="h5" p={3} lineHeight={1}>
             {product.title}
           </Typography>
         </Box>
@@ -52,11 +52,11 @@ function Product({ product }: { product: Product }) {
         </CardContent>
         <CardActions>
           <Box
-            display={'flex'}
-            width={'100%'}
-            height={'100%'}
-            justifyContent={'end'}
-            mt={'auto'}
+            display={"flex"}
+            width={"100%"}
+            height={"100%"}
+            justifyContent={"end"}
+            mt={"auto"}
           >
             <Button onClick={open} variant="contained" color="primary">
               View More
@@ -68,24 +68,24 @@ function Product({ product }: { product: Product }) {
       <Modal open={isOpen}>
         <Box
           sx={{
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            width: 'fit-content',
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: "fit-content",
             maxWidth: 1000,
             minWidth: 300,
-            bgcolor: 'white',
-            border: '2px solid #000',
+            bgcolor: "white",
+            border: "2px solid #000",
             boxShadow: 24,
             p: 4,
           }}
         >
           <Typography variant="h3">{product.title}</Typography>
-          <Box display={'inline-block'}>
+          <Box display={"inline-block"}>
             <Typography variant="body1">{product.description}</Typography>
           </Box>
-          <Box display={'flex'} width={'100%'} justifyContent={'end'}>
+          <Box display={"flex"} width={"100%"} justifyContent={"end"}>
             <Button onClick={close} variant="contained" color="error">
               Close
             </Button>
@@ -96,7 +96,7 @@ function Product({ product }: { product: Product }) {
   );
 }
 
-export default function Products() {
+export function Products() {
   const { getProducts } = useProducts();
   const [products, setProducts] = useState<Product[]>([]);
   const [failedRequest, setFailedRequest] = useState<boolean>(false);
@@ -115,25 +115,27 @@ export default function Products() {
   }, []);
 
   return (
-    <Stack direction={'column'}>
-      <Typography variant="h1" textAlign={'center'}>
+    <Stack direction={"column"}>
+      <Typography variant="h1" textAlign={"center"}>
         Products
       </Typography>
       {products.length === 0 && (
-        <CircularProgress size={40} sx={{ mx: 'auto', my: 'auto' }} />
+        <CircularProgress size={40} sx={{ mx: "auto", my: "auto" }} />
       )}
       <Box
-        flexWrap={'wrap'}
-        display={'flex'}
-        flexDirection={'row'}
+        flexWrap={"wrap"}
+        display={"flex"}
+        flexDirection={"row"}
         gap={3}
-        mx={'auto'}
-        width={'fit-content'}
-        justifyContent={'center'}
+        mx={"auto"}
+        width={"fit-content"}
+        justifyContent={"center"}
       >
         {failedRequest && (
-          <Typography variant='h3'>Failed to reach server. Make sure terraform is running!</Typography>)
-          }
+          <Typography variant="h3">
+            Failed to reach server. Make sure terraform is running!
+          </Typography>
+        )}
         {/* <Product product={products[0]} /> */}
         {products
           .sort((p1, p2) => p1.category.localeCompare(p2.category)) // sort by category
