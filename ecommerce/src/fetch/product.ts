@@ -1,4 +1,5 @@
 import { Product } from '../components/products';
+import { Cart } from '../components/products';
 import { SERVER_URL } from '../constants';
 
 // All endpoints provided by fakestoreapi.com
@@ -30,14 +31,14 @@ export function useProducts() {
 }
 
 export function useCart(){
-  async function addToCart(prodId:number) {
+  async function addToCart(prodId : Cart) {
     return await getData(`${SERVER_URL}/cart/`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${sessionStorage.getItem('accessToken')}`,
+        'Authorization': `Bearer ${sessionStorage.getItem('idToken')}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ id : prodId}),
+      body: JSON.stringify(prodId),
     });
   }
 

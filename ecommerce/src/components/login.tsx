@@ -23,8 +23,8 @@ const loginUser = async (email: string, password: string) =>  {
     console.log("User logged in:", response);
 
     sessionStorage.setItem(
-      "accessToken",
-      response.AuthenticationResult?.AccessToken || "",
+      "idToken",
+      response.AuthenticationResult?.IdToken || "",
     );
     
     return response.AuthenticationResult?.AccessToken;

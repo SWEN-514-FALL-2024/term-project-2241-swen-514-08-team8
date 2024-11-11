@@ -1,18 +1,33 @@
 import json
 import boto3
 from boto3.dynamodb.conditions import Key
+from decimal import Decimal
 
 dynamodb = boto3.resource('dynamodb')
 table = dynamodb.Table('Cart')
+
+def convert_decimals(obj):
+    if isinstance(obj, list):
+        return [convert_decimals(i) for i in obj]
+    elif isinstance(obj, dict):
+        return {k: convert_decimals(v) for k, v in obj.items()}
+    elif isinstance(obj, Decimal):
+        return float(obj) if obj % 1 > 0 else int(obj)
+    else:
+        return obj
 
 def add_to_cart(event, context):
 
     #Get authenticated user identifier from cognito
     user_id = event['requestContext']['authorizer']['claims']['sub']
     
-    body = json.loads(event['body'])
+    if isinstance(event['body'], str):
+        body = json.loads(event['body'])
+    else:
+        body = event['body']
+
     product_id = body.get('id')
-    quantity = 1
+    quantity = body.get('quantity')
     
     if not product_id or not quantity:
         return {
@@ -23,8 +38,8 @@ def add_to_cart(event, context):
     try:
         response = table.update_item(
             Key={
-                'userId': user_id,        #Partition key for the user
-                'productId': product_id   #Sort key for the specific product
+                'UserId': user_id,        #Partition key for the user
+                'ProductId': product_id   #Sort key for the specific product
             },
             UpdateExpression="SET quantity = :quantity",
             ExpressionAttributeValues={
@@ -35,7 +50,13 @@ def add_to_cart(event, context):
         
         return {
             'statusCode': 200,
-            'body': json.dumps({'message': 'Product added to cart successfully', 'data': response['Attributes']})
+            'headers': {
+                'Access-Control-Allow-Credentials': True,
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Headers': 'Content-Type,Authorization',
+                'Access-Control-Allow-Methods': 'OPTIONS,POST,GET'
+            },
+            'body': json.dumps({'message': 'Product added to cart successfully', 'data': convert_decimals(response)})
         }
     
     except Exception as e:

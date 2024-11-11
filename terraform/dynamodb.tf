@@ -19,7 +19,7 @@ resource "aws_dynamodb_table" "cart_table" {
     #Stores carts per user identifier
     attribute {
         name = "UserId"
-        type = "N"
+        type = "S"
     }
 
 
