@@ -20,7 +20,7 @@ def add_to_cart(event, context):
 
     #Get authenticated user identifier from cognito
     user_id = event['requestContext']['authorizer']['claims']['sub']
-    
+
     if isinstance(event['body'], str):
         body = json.loads(event['body'])
     else:
@@ -72,10 +72,10 @@ def get_cart(event, context):
 
     try:
         response = table.query(
-            KeyConditionExpression=boto3.dynamodb.conditions.Key('userId').eq(user_id)
+            KeyConditionExpression=boto3.dynamodb.conditions.Key('UserId').eq(user_id)
         )
         
-        items = response.get('Items', [])
+        items = convert_decimals(response.get('Items', []))
         
         return {
             'statusCode': 200,

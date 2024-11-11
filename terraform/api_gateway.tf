@@ -331,6 +331,40 @@ resource "aws_api_gateway_integration" "cart_integration" {
   depends_on = [ aws_api_gateway_method.cart_post]
 }
 
+resource "aws_api_gateway_method" "cart_get" {
+  rest_api_id   = aws_api_gateway_rest_api.ecommerce-api.id
+  resource_id   = aws_api_gateway_resource.cart.id
+  http_method   = "GET"
+  authorization = "COGNITO_USER_POOLS"
+  authorizer_id = aws_api_gateway_authorizer.cognito_authorizer.id
+
+  depends_on = [aws_api_gateway_resource.cart]
+}
+
+resource "aws_api_gateway_method_response" "cart_get_method_response" {
+  rest_api_id = aws_api_gateway_rest_api.ecommerce-api.id
+  resource_id = aws_api_gateway_resource.cart.id
+  http_method = aws_api_gateway_method.cart_get.http_method
+  status_code = 200 
+
+  response_parameters = {
+    "method.response.header.Access-Control-Allow-Origin" = true,
+  }
+
+  depends_on = [aws_api_gateway_method.cart_get]
+}
+
+resource "aws_api_gateway_integration" "cart_get_integration" {
+  rest_api_id             = aws_api_gateway_rest_api.ecommerce-api.id
+  resource_id             = aws_api_gateway_resource.cart.id
+  http_method             = aws_api_gateway_method.cart_get.http_method
+  integration_http_method = "POST"
+  type                    = "AWS_PROXY"
+  uri                     = aws_lambda_function.get_cart_lambda.invoke_arn
+
+  depends_on = [ aws_api_gateway_method.cart_get]
+}
+
 resource "aws_api_gateway_authorizer" "cognito_authorizer" {
   name          = "CognitoAuthorizer"
   rest_api_id   = aws_api_gateway_rest_api.ecommerce-api.id
@@ -349,7 +383,7 @@ resource "aws_api_gateway_deployment" "ecommerce-api" {
     create_before_destroy = true
   }
 
-  depends_on = [aws_api_gateway_integration_response.cart_options_integration_response, aws_api_gateway_integration.cart_integration]
+  depends_on = [aws_api_gateway_integration_response.cart_options_integration_response, aws_api_gateway_integration.cart_integration, aws_api_gateway_integration.cart_get_integration]
 }
 
 resource "aws_api_gateway_stage" "ecommerce-api-stage" {
