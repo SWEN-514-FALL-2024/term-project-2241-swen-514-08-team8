@@ -39,7 +39,7 @@ import {
     mx: 0
   }
   
-  function CheckoutItem({ checkoutItem }: { checkoutItem: CheckoutItem }, {}) {
+  function CheckoutItem({ checkoutItem, removeItem }: { checkoutItem: CheckoutItem, removeItem: (id: number) => void }, {}) {
     const [isOpen, setOpen] = useState(false);
     const close = () => setOpen(false);
     const open = () => setOpen(true);
@@ -82,9 +82,9 @@ import {
                 <Button onClick={open} variant="contained" color="primary" sx={{ ml: 1 }}>
                   View More
                 </Button>
-                {/* <Button onClick={() => removeItem(checkoutItem.id)} variant="contained" color="error" sx={{ ml: 1 }}>
+                <Button onClick={() => removeItem(checkoutItem.id)} variant="contained" color="error" sx={{ ml: 1 }}>
                   Remove
-                </Button> */}
+                </Button>
               </Box>
             </Box>
           </CardActions>
@@ -129,9 +129,11 @@ import {
 
     const placeholderUser: User = {id: 4, username: "John Placeholder", email: "examp1e@mail.gov"}
 
-    // const removeItem = (itemId: number) => {
-    //   setProducts(products.filter((product) => product.id = itemId))
-    // }
+    const removeItem = (itemId: number) => {
+      console.log(products.length)
+      setProducts(products.filter((product) => product.id === itemId) as CheckoutItem[])
+      console.log(products.length)
+    }
   
     useEffect(() => {
       async function load() {
@@ -180,7 +182,7 @@ import {
                 {products
                     .sort((p1, p2) => p1.category.localeCompare(p2.category)) // sort by category
                     .map((product, i) => (
-                    <CheckoutItem key={i} checkoutItem={product} />
+                    <CheckoutItem key={i} checkoutItem={product} removeItem={removeItem} />
                     ))}
                 </Box>
             </Box>
@@ -203,7 +205,7 @@ import {
                             Email: {placeholderUser.email}
                         </Typography>
                         
-                        <Typography variant="h5" textAlign={'left'} sx={CustomGridStyle}>
+                        <Typography variant="h5" textAlign={'left'} sx={{...CustomGridStyle, borderBottom: 0}}>
                             Total Price: {products.length !== 0 && products
                               .map((product) => product.price)
                               .reduce((total, price) => parseFloat((total+price).toFixed(2)))
