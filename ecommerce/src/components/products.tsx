@@ -14,7 +14,7 @@ import { useEffect, useState } from 'react';
 import { useProducts } from '../fetch/product';
 
 export type Product = {
-  id: number;
+  ProductId: number;
   title: string;
   price: number;
   description: string;

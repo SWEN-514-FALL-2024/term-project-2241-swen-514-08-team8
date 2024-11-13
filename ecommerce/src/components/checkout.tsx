@@ -1,21 +1,21 @@
 import {
-    Box,
-    Button,
-    Card,
-    CardActions,
-    CardMedia,
-    CircularProgress,
-    Modal,
-    Stack,
-    Typography,
-    SxProps,
-  } from '@mui/material';
-  import { useEffect, useState } from 'react';
-  import { useProducts } from '../fetch/product';
-  import { useNavigate } from 'react-router-dom';
+  Box,
+  Button,
+  Card,
+  CardActions,
+  CardMedia,
+  CircularProgress,
+  Modal,
+  Stack,
+  SxProps,
+  Typography,
+} from '@mui/material';
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useProducts } from '../fetch/product';
   
   export type CheckoutItem = {
-    id: number;
+    ProductId: number;
     title: string;
     price: number;
     description: string;
@@ -39,7 +39,7 @@ import {
     mx: 0
   }
   
-  function CheckoutItem({ checkoutItem, removeItem }: { checkoutItem: CheckoutItem, removeItem: (id: number) => void }, {}) {
+  function CheckoutItem({ checkoutItem, removeItem }: { checkoutItem: CheckoutItem, removeItem: (id: number) => void }) {
     const [isOpen, setOpen] = useState(false);
     const close = () => setOpen(false);
     const open = () => setOpen(true);
@@ -82,7 +82,7 @@ import {
                 <Button onClick={open} variant="contained" color="primary" sx={{ ml: 1 }}>
                   View More
                 </Button>
-                <Button onClick={() => removeItem(checkoutItem.id)} variant="contained" color="error" sx={{ ml: 1 }}>
+                <Button onClick={() => removeItem(checkoutItem.ProductId)} variant="contained" color="error" sx={{ ml: 1 }}>
                   Remove
                 </Button>
               </Box>
@@ -130,9 +130,8 @@ import {
     const placeholderUser: User = {id: 4, username: "John Placeholder", email: "examp1e@mail.gov"}
 
     const removeItem = (itemId: number) => {
-      console.log(products.length)
-      setProducts(products.filter((product) => product.id === itemId) as CheckoutItem[])
-      console.log(products.length)
+      const newProducts = products.filter((product) => product.ProductId !== itemId) as CheckoutItem[];
+      setProducts(newProducts);
     }
   
     useEffect(() => {
