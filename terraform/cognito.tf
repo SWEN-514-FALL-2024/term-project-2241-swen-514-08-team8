@@ -24,6 +24,17 @@ resource "aws_cognito_user_pool_client" "app_client" {
   supported_identity_providers = ["COGNITO"]
 }
 
+
+resource "aws_cognito_user" "test_user" {
+  user_pool_id = aws_cognito_user_pool.my_user_pool.id
+  username     = "test@gmail.com"
+  password     = "Password1$"
+  attributes = {
+    email = "test@gmail.com"
+    email_verified = true
+  }
+}
+
 # resource "aws_cognito_user_group" "admin_group" {
 #   name         = "Admins"
 #   user_pool_id = aws_cognito_user_pool.my_user_pool.id
