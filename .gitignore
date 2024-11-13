@@ -8,3 +8,4 @@
 /lambdas/zips/
 .DS_Store
 terraform.tfstate
+.terraform.tfstate.lock.info

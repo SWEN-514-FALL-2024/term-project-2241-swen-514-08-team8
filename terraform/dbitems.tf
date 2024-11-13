@@ -25,21 +25,6 @@ resource "aws_dynamodb_table_item" "item2" {
         })
 }
 
-resource "aws_dynamodb_table_item" "item3" {
-    depends_on = [
-        aws_dynamodb_table.cart_table
-    ]
-    table_name = aws_dynamodb_table.cart_table.name
-    hash_key = aws_dynamodb_table.cart_table.hash_key
-
-    item = jsonencode({
-        "CartId": {"N": "1"},
-        "UserId": {"N": "1"},
-        "ProductId": {"N":"1"}
-        })
-}
-
-
 resource "aws_lambda_invocation" "populate_products_invocation" {
     depends_on = [
         aws_dynamodb_table.product_table

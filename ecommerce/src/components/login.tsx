@@ -21,6 +21,12 @@ const loginUser = async (email: string, password: string) =>  {
   try {
     const response = await cognitoClient.send(command);
     console.log("User logged in:", response);
+
+    sessionStorage.setItem(
+      "idToken",
+      response.AuthenticationResult?.IdToken || "",
+    );
+    
     return response.AuthenticationResult?.AccessToken;
   } catch (error) {
     console.error("Error logging in user:", error);
