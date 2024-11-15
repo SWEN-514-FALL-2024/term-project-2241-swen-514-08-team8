@@ -3,18 +3,20 @@ import {
   Button,
   Card,
   CardActions,
-  CardContent,
   CardMedia,
+  Chip,
   CircularProgress,
+  Divider,
   Modal,
+  Rating,
   Stack,
-  Typography,
+  Typography
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import { useProducts } from "../fetch/product";
 
 export type Product = {
-  id: number;
+  ProductId: number;
   title: string;
   price: number;
   description: string;
@@ -31,25 +33,38 @@ export function Product({ product }: { product: Product }) {
 
   return (
     <>
-      <Card sx={{ width: "450px" }}>
-        <Box display={"flex"} flexDirection={"row"}>
-          <CardMedia sx={{ m: 3 }}>
-            <img
-              src={product.image}
-              width={"150px"}
-              height={"150px"}
-              style={{ objectFit: "cover", overflow: "hidden", margin: "auto" }}
-            />
-          </CardMedia>
-          <Typography overflow={"clip"} variant="h5" p={3} lineHeight={1}>
-            {product.title}
-          </Typography>
-        </Box>
-        <CardContent>
-          <Typography>
-            Ratings: {product.rating_rate} ({product.rating_count})
-          </Typography>
-        </CardContent>
+      <Card sx={{ 
+        width: "450px",
+        transition: 'transform 0.3s ease-in-out',
+        ":hover": {
+          transform: "scale(1.01)",
+        }}}>
+        <CardMedia image={product.image} component={'img'} sx={{
+          width: '100%',
+          height: 200, // Set a consistent height for all images
+          objectFit: 'cover', // Ensure the image covers the area without distortion
+        }}> 
+        </CardMedia>
+        <Stack p={2} divider={<Divider/>} gap={2}>
+          <Box>
+            <Typography variant="h5" lineHeight={1}   
+              sx={{
+                  overflow: 'hidden',
+                  display: '-webkit-box',
+                  WebkitBoxOrient: 'vertical',
+                  WebkitLineClamp: 2,
+                  textOverflow: 'ellipsis',
+                }}>
+              {product.title}
+            </Typography>
+            <Stack gap={2} direction={'row'} mt={1}>
+              <Rating value={product.rating_rate}  precision={.1} readOnly />              
+              <Typography>
+                ({product.rating_count})
+              </Typography>
+            </Stack>
+          </Box>
+        </Stack>
         <CardActions>
           <Box
             display={"flex"}
@@ -58,6 +73,9 @@ export function Product({ product }: { product: Product }) {
             justifyContent={"end"}
             mt={"auto"}
           >
+            <Box flexGrow={1} ml={1}>
+              <Chip color="success" label={`$${product.price ?? 0}`} />
+            </Box>
             <Button onClick={open} variant="contained" color="primary">
               View More
             </Button>

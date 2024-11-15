@@ -5,8 +5,8 @@ import Header from "./header";
 export default function Home() {
   return (
     <Box>
-      <Header />
-      <Outlet />
+        <Header />
+        <Outlet />
     </Box>
   );
 }

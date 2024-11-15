@@ -1,8 +1,10 @@
 import { Box, Button, Stack, Typography } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import { useNotification } from "../alerts";
 
 export default function AdminHome() {
   const nav = useNavigate();
+  const { notify } = useNotification();
 
   return (
     <>
@@ -31,7 +33,9 @@ export default function AdminHome() {
           >
             Create Product
           </Button>
-          <Button fullWidth sx={{ py: 3 }} variant="contained">
+          <Button fullWidth sx={{ py: 3 }} variant="contained" onClick={()=> {
+            notify("This feature is not yet implemented.", 'info');
+          }}>
             Modify Products
           </Button>
         </Stack>

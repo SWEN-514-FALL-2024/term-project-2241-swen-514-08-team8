@@ -1,6 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Cancel, Create } from "@mui/icons-material";
 import { Box, Button, InputAdornment, Stack, Typography } from "@mui/material";
+import { useState } from "react";
 import {
   FormContainer,
   SelectElement,
@@ -17,7 +18,7 @@ export default function CreateProduct() {
       Description: "",
       Price: 0,
       Category: "", // Set default to empty string to avoid undefined
-      Image: null,
+      Image: null as string | null,
       RatingCount: 0,
       RatingStars: 0.0,
     },
@@ -41,6 +42,20 @@ export default function CreateProduct() {
       })
     ),
   });
+
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+        form.setValue('Image', reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   const watched = form.watch(
     [
@@ -69,7 +84,6 @@ export default function CreateProduct() {
         Create a Product
       </Typography>
       <Stack direction={"row"} gap={3}>
-        {" "}
         <FormContainer formContext={form}>
           <Stack direction={"column"} height={"fit-content"} gap={3}>
             <TextFieldElement
@@ -110,6 +124,7 @@ export default function CreateProduct() {
               name="ProductImage"
               type="file"
               label="Product Photo"
+              onChange={handleImageUpload}
               slotProps={{ inputLabel: { shrink: true } }}
             />
             <Stack direction={"row"} gap={2}>
@@ -144,7 +159,8 @@ export default function CreateProduct() {
               onClick={() => {
                 form.handleSubmit((data) => {
                   console.log(data);
-                });
+                })();
+
               }}
             >
               Create
@@ -163,12 +179,12 @@ export default function CreateProduct() {
             // "RatingStars",
             <Product
               product={{
-                id: 0,
+                ProductId: -1,
                 title: watched[0],
                 description: watched[1],
                 price: watched[2],
                 category: watched[3],
-                image: watched[4] || "https://via.placeholder.com/150",
+                image: imagePreview || "https://via.placeholder.com/150",
                 rating_count: watched[5],
                 rating_rate: watched[6],
               }}
