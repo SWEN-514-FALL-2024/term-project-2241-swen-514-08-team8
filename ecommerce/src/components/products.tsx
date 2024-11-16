@@ -106,7 +106,7 @@ function Product({ product }: { product: Product }) {
 
 const handleAddToCart = async (productId: number) => {
   const { addToCart } = useCart();
-  addToCart({id: productId, quantity : 1} as Cart)
+  addToCart({id: productId, quantity: 1} as Cart)
 };
 
 export default function Products() {

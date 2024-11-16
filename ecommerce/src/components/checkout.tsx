@@ -26,9 +26,15 @@ import { useCart, useProducts } from '../fetch/product';
   };
 
   export type CartItem = {
-    UserId: String;
+    UserId: string;
     ProductId: number;
     quantity: number;
+    status: string;
+    transaction: number;
+  };
+
+  export type CartResponse = {
+    cartItems: CartItem[];
   };
 
   export type User = {
@@ -83,7 +89,7 @@ import { useCart, useProducts } from '../fetch/product';
               ml={'auto'}
             >
               <Typography overflow={'ellipsis'} variant="h6" p={2} lineHeight={1}>
-                Amount Ordered: {checkoutItem.amountOrdered} N/A
+                Amount Ordered: {checkoutItem.amountOrdered}
               </Typography>
               <Box flexDirection={'row'}>
                 <Button onClick={open} variant="contained" color="primary" sx={{ ml: 1 }}>
@@ -144,15 +150,17 @@ import { useCart, useProducts } from '../fetch/product';
   
     useEffect(() => {
       async function load() {
+        //Grabs the users cart
         const res = await getCart();
         if (res.success) {
-          const carts = res.json as CartItem[];
+          const cart = res.json as CartResponse;
           const checkoutList: CheckoutItem[] = [];
 
-          for (const cartItem of carts) {
-            const response = await getProductById(cartItem.ProductId);
+          //Grabs all the user's cart items
+          for (let i = 0; i < cart.cartItems.length; i++) {
+            const response = await getProductById(cart.cartItems[i].ProductId);
             const product = response.json as CheckoutItem;
-            product.amountOrdered = cartItem.quantity;
+            product.amountOrdered = cart.cartItems[i].quantity;
             checkoutList.push(product)
           }
           setProducts(checkoutList);

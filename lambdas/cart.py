@@ -28,7 +28,7 @@ def add_to_cart(event, context):
 
     product_id = body.get('id')
     quantity = body.get('quantity')
-    
+
     if not product_id or not quantity:
         return {
             'statusCode': 400,
@@ -43,7 +43,9 @@ def add_to_cart(event, context):
             },
             UpdateExpression="SET quantity = :quantity",
             ExpressionAttributeValues={
-                ':quantity': quantity
+                ':quantity': quantity,
+                ':status': "added",
+                ':transaction': 0
             },
             ReturnValues="UPDATED_NEW"
         )

@@ -42,8 +42,15 @@ export function useCart(){
     });
   }
 
-  async function getCart() {
-    return await getData(SERVER_URL + '/cart/');
+  async function getCart() { 
+    return await getData(SERVER_URL + '/cart/', {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${sessionStorage.getItem('idToken')}`,
+        'Content-Type': 'application/json',
+      },
+      body: null,
+    });
   }
 
   return {
