@@ -43,9 +43,7 @@ def add_to_cart(event, context):
             },
             UpdateExpression="SET quantity = :quantity",
             ExpressionAttributeValues={
-                ':quantity': quantity,
-                ':status': "added",
-                ':transaction': 0
+                ':quantity': quantity
             },
             ReturnValues="UPDATED_NEW"
         )
