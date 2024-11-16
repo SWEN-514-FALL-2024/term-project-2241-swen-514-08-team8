@@ -79,6 +79,12 @@ def get_cart(event, context):
         
         return {
             'statusCode': 200,
+            'headers': {
+                'Access-Control-Allow-Credentials': True,
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Headers': 'Content-Type,Authorization',
+                'Access-Control-Allow-Methods': 'OPTIONS,POST,GET'
+            },
             'body': json.dumps({'cartItems': items})
         }
 

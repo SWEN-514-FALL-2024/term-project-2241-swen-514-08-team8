@@ -12,7 +12,8 @@ import {
 } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useProducts } from '../fetch/product';
+import { useCart, useProducts } from '../fetch/product';
+
   
   export type CheckoutItem = {
     ProductId: number;
@@ -22,6 +23,12 @@ import { useProducts } from '../fetch/product';
     category: string;
     image: string;
     amountOrdered?: number
+  };
+
+  export type CartItem = {
+    UserId: String;
+    ProductId: number;
+    quantity: number;
   };
 
   export type User = {
@@ -123,7 +130,8 @@ import { useProducts } from '../fetch/product';
   
   export default function Checkout() {
     const navigate = useNavigate();
-    const { getProducts } = useProducts();
+    const { getProductById } = useProducts();
+    const { getCart } = useCart();
     const [products, setProducts] = useState<CheckoutItem[]>([]);
     const [failedRequest, setFailedRequest] = useState<boolean>(false);
 
@@ -136,9 +144,18 @@ import { useProducts } from '../fetch/product';
   
     useEffect(() => {
       async function load() {
-        const res = await getProducts();
+        const res = await getCart();
         if (res.success) {
-          setProducts(res.json as CheckoutItem[]);
+          const carts = res.json as CartItem[];
+          const checkoutList: CheckoutItem[] = [];
+
+          for (const cartItem of carts) {
+            const response = await getProductById(cartItem.ProductId);
+            const product = response.json as CheckoutItem;
+            product.amountOrdered = cartItem.quantity;
+            checkoutList.push(product)
+          }
+          setProducts(checkoutList);
         } else {
           setFailedRequest(true);
         }
