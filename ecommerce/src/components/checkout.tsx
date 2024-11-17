@@ -161,11 +161,13 @@ import {v4 as uuidv4} from 'uuid';
     const handlePurchase = async () => {
       if(!empty){
         const transactionId = uuidv4();
-        for(let i = 0; i < products.length; i++) {
-          const productId = products[i].ProductId;
-          const quantity = products[i].amountOrdered;
+        
+        const updatePromises = products.map((product) => {
+          const productId = product.ProductId;
+          const quantity = product.amountOrdered;
           updateAddedCart({ProductId: productId, quantity: quantity, transactionId: transactionId, itemStatus: "Purchased"} as CartItem)
-        }
+        });
+        await Promise.all(updatePromises);
       }
       navigate('/home/transactions')
     };

@@ -10,7 +10,7 @@ export function useProducts() {
     return await getData(SERVER_URL + '/products/');
   }
 
-  async function getProductById(id: number) {
+  async function getProductById(id: number): Promise<RequestResult> {
     return await getData(`${SERVER_URL}/products/${id}`);
   }
 
@@ -54,7 +54,7 @@ export function useCart(){
     });
   }
 
-  async function updateAddedCart(prodId : CartItem) { 
+  async function updateAddedCart(prodId : CartItem): Promise<RequestResult> { 
     return await getData(SERVER_URL + '/cart/', {
       method: 'PUT',
       headers: {
