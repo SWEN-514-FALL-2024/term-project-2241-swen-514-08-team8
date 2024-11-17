@@ -77,6 +77,17 @@ resource "aws_lambda_function" "get_cart_lambda" {
   depends_on = [ aws_iam_role.lambda_iam_role ]
 }
 
+resource "aws_lambda_function" "update_added_cart_lambda" {
+  function_name = "ecommerce-update_added_cart"
+  role          = aws_iam_role.lambda_iam_role.arn
+  handler       = "cart.update_added_cart"
+  runtime       = "python3.12"
+  filename      = "${path.module}/../lambdas/zips/cart.py"
+  timeout = 4
+
+  depends_on = [ aws_iam_role.lambda_iam_role ]
+}
+
 # Unfortunately we need to hard code these function names.
 # There is an alternative, where we dynamically create all our lambdas in a single "aws_lambda_function" with a for-each loop.
 # This should work for now with our limited number of lambdas.
@@ -86,7 +97,8 @@ variable "lambda_function_names" {
     "ecommerce-create-products",   
     "ecommerce-populate-products",
     "ecommerce-add-to-cart",
-    "ecommerce-get-cart"
+    "ecommerce-get-cart",
+    "ecommerce-update_added_cart"
   ]
 }
 

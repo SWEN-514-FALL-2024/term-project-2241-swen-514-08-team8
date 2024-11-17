@@ -47,10 +47,12 @@ def add_to_cart(event, context):
             UpdateExpression="""SET quantity = :quantity,
                     transactionId = if_not_exists(transactionId, :transactionId),
                     itemStatus = if_not_exists(itemStatus, :itemStatus)""",
+            # ConditionExpression='attribute_not_exists(itemStatus) OR itemStatus = :currentStatus', 
             ExpressionAttributeValues={
                 ':quantity': quantity,
                 ':transactionId': transactionId,
                 ':itemStatus': itemStatus
+                # ':currentStatus': "Added"
             },
             ReturnValues="UPDATED_NEW"
         )
@@ -66,12 +68,55 @@ def add_to_cart(event, context):
             'body': json.dumps({'message': 'Product added to cart successfully', 'data': convert_decimals(response)})
         }
     except ClientError as e:
-        # Log detailed DynamoDB client error
-        print("DynamoDB ClientError:", e.response['Error']['Message'])
-        return {
-            'statusCode': 500,
-            'body': json.dumps({'error': 'DynamoDB Client Error', 'details': e.response['Error']['Message']})
-        }
+        # # Create a new item if none exist or if the same product was purchased/removed in the past    
+        # if e.response['Error']['Code'] == 'ConditionalCheckFailedException':
+        #     try:
+        #         response = table.update_item(
+        #             Key={
+        #             'UserId': user_id,        #Partition key for the user
+        #             'ProductId': product_id   #Sort key for the specific product
+        #         },
+        #         UpdateExpression="""SET quantity = :quantity,
+        #                 transactionId = if_not_exists(transactionId, :transactionId),
+        #                 itemStatus = if_not_exists(itemStatus, :itemStatus)""",
+        #         ExpressionAttributeValues={
+        #             ':quantity': quantity,
+        #             ':transactionId': transactionId,
+        #             ':itemStatus': itemStatus
+        #         },
+        #         ReturnValues="UPDATED_NEW"
+        #         )
+        #         return {
+        #             'statusCode': 200,
+        #             'headers': {
+        #                 'Access-Control-Allow-Credentials': True,
+        #                 'Access-Control-Allow-Origin': '*',
+        #                 'Access-Control-Allow-Headers': 'Content-Type,Authorization',
+        #                 'Access-Control-Allow-Methods': 'OPTIONS,POST,GET'
+        #             },
+        #             'body': json.dumps({'message': 'Product added to cart successfully', 'data': convert_decimals(response)})
+        #         }
+        #     except ClientError as e:
+        #         # Log detailed DynamoDB client error
+        #         print("DynamoDB ClientError:", e.response['Error']['Message'])
+        #         return {
+        #             'statusCode': 500,
+        #             'body': json.dumps({'error': 'DynamoDB Client Error', 'details': e.response['Error']['Message']})
+        #         }
+        #     except Exception as e:
+        #         # Log generic exception details
+        #         print("Exception occurred:", str(e))
+        #         return {
+        #             'statusCode': 500,
+        #             'body': json.dumps({'error': 'Could not update cart', 'details': str(e)})
+        #         }
+        # else:
+            # Log detailed DynamoDB client error
+            print("DynamoDB ClientError:", e.response['Error']['Message'])
+            return {
+                'statusCode': 500,
+                'body': json.dumps({'error': 'DynamoDB Client Error', 'details': e.response['Error']['Message']})
+            }
     except Exception as e:
         # Log generic exception details
         print("Exception occurred:", str(e))
@@ -107,4 +152,69 @@ def get_cart(event, context):
         return {
             'statusCode': 500,
             'body': json.dumps({'error': 'Could not retrieve cart items'})
+        }
+
+def update_added_cart(event, context):
+    
+    #Get authenticated user identifier from cognito
+    user_id = event['requestContext']['authorizer']['claims']['sub']
+
+    if isinstance(event['body'], str):
+        body = json.loads(event['body'])
+    else:
+        body = event['body']
+
+    product_id = body.get('ProductId')
+    quantity = body.get('quantity')
+    transactionId = body.get('transactionId')
+    itemStatus = body.get('itemStatus')
+    
+    if not product_id :
+        return {
+            'statusCode': 400,
+            'body': json.dumps({'error': 'Product ID is required'})
+        }
+    
+    try:
+        response = table.update_item(
+            Key={
+                'UserId': user_id,        #Partition key for the user
+                'ProductId': product_id   #Sort key for the specific product
+            },
+            UpdateExpression="""SET quantity = :quantity,
+                    transactionId = :transactionId,
+                    itemStatus = :itemStatus""",
+            ConditionExpression='itemStatus = :currentStatus',
+            ExpressionAttributeValues={
+                ':quantity': quantity,
+                ':transactionId': transactionId,
+                ':itemStatus': itemStatus,
+                ':currentStatus': "Added"
+            },
+            ReturnValues="UPDATED_NEW"
+        )
+        
+        return {
+            'statusCode': 200,
+            'headers': {
+                'Access-Control-Allow-Credentials': True,
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Headers': 'Content-Type,Authorization',
+                'Access-Control-Allow-Methods': 'OPTIONS,POST,GET'
+            },
+            'body': json.dumps({'message': 'Product added to cart successfully', 'data': convert_decimals(response)})
+        }
+    except ClientError as e:
+        # Log detailed DynamoDB client error
+        print("DynamoDB ClientError:", e.response['Error']['Message'])
+        return {
+            'statusCode': 500,
+            'body': json.dumps({'error': 'DynamoDB Client Error', 'details': e.response['Error']['Message']})
+        }
+    except Exception as e:
+        # Log generic exception details
+        print("Exception occurred:", str(e))
+        return {
+            'statusCode': 500,
+            'body': json.dumps({'error': 'Could not update cart', 'details': str(e)})
         }

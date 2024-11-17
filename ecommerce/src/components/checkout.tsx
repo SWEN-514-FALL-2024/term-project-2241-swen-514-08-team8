@@ -13,6 +13,7 @@ import {
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCart, useProducts } from '../fetch/product';
+import {v4 as uuidv4} from 'uuid';
 
   
   export type CheckoutItem = {
@@ -23,14 +24,14 @@ import { useCart, useProducts } from '../fetch/product';
     category: string;
     image: string;
     amountOrdered: number
-    transactionId: number;
+    transactionId: string;
   };
 
   export type CartItem = {
     UserId: string;
     ProductId: number;
     quantity: number;
-    transactionId: number;
+    transactionId: string;
     itemStatus: string;
   };
 
@@ -138,16 +139,36 @@ import { useCart, useProducts } from '../fetch/product';
   export default function Checkout() {
     const navigate = useNavigate();
     const { getProductById } = useProducts();
-    const { getCart } = useCart();
+    const { getCart, updateAddedCart } = useCart();
     const [products, setProducts] = useState<CheckoutItem[]>([]);
     const [failedRequest, setFailedRequest] = useState<boolean>(false);
+    const [empty, setEmpty] = useState<boolean>(false);
 
     const placeholderUser: User = {id: 4, username: "John Placeholder", email: "examp1e@mail.gov"}
 
     const removeItem = (itemId: number) => {
+      updateAddedCart({ProductId: itemId, quantity: 0, transactionId: "0", itemStatus: "Removed"} as CartItem)
       const newProducts = products.filter((product) => product.ProductId !== itemId) as CheckoutItem[];
       setProducts(newProducts);
+
+      if(newProducts.length === 0) {
+        setEmpty(true);
+      } else {
+        setEmpty(false);
+      }
     }
+
+    const handlePurchase = async () => {
+      if(!empty){
+        const transactionId = uuidv4();
+        for(let i = 0; i < products.length; i++) {
+          const productId = products[i].ProductId;
+          const quantity = products[i].amountOrdered;
+          updateAddedCart({ProductId: productId, quantity: quantity, transactionId: transactionId, itemStatus: "Purchased"} as CartItem)
+        }
+      }
+      navigate('/home/transactions')
+    };
   
     useEffect(() => {
       async function load() {
@@ -162,12 +183,20 @@ import { useCart, useProducts } from '../fetch/product';
             if(cart.cartItems[i].itemStatus === "Added") {
               const response = await getProductById(cart.cartItems[i].ProductId);
               const product = response.json as CheckoutItem;
+              product.ProductId = cart.cartItems[i].ProductId;
               product.amountOrdered = cart.cartItems[i].quantity;
               product.transactionId = cart.cartItems[i].transactionId;
               checkoutList.push(product)
             }
           }
+
+          if(checkoutList.length === 0) {
+            setEmpty(true);
+          } else {
+            setEmpty(false);
+          }
           setProducts(checkoutList);
+
         } else {
           setFailedRequest(true);
         }
@@ -194,9 +223,12 @@ import { useCart, useProducts } from '../fetch/product';
                 <Typography variant="h2" textAlign={'center'} width={1/4}>
                 Cart
                 </Typography>
-                {products.length === 0 && (
+                {products.length === 0 && !empty && (
                 <CircularProgress size={40} sx={{ mx: 'auto', my: 'auto' }} />
                 )}
+                {products.length === 0 && empty && (
+                <Typography variant='h5'>Cart is empty</Typography>)
+                }
                 <Box
                     display={'flex'}
                     flexDirection={'column'}
@@ -241,7 +273,7 @@ import { useCart, useProducts } from '../fetch/product';
                         </Typography>
                     </Box>
                 </Box>
-                <Button onClick={() => navigate('/home/transactions')} variant="contained" color="primary" sx={{mt: 1}}>
+                <Button onClick={() => handlePurchase()} variant="contained" color="primary" sx={{mt: 1}}>
                     Purchase
                 </Button>
             </Box>
