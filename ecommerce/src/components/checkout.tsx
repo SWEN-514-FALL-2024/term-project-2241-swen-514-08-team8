@@ -22,15 +22,16 @@ import { useCart, useProducts } from '../fetch/product';
     description: string;
     category: string;
     image: string;
-    amountOrdered?: number
+    amountOrdered: number
+    transactionId: number;
   };
 
   export type CartItem = {
     UserId: string;
     ProductId: number;
     quantity: number;
-    status: string;
-    transaction: number;
+    transactionId: number;
+    itemStatus: string;
   };
 
   export type CartResponse = {
@@ -76,7 +77,7 @@ import { useCart, useProducts } from '../fetch/product';
           <CardActions>
 
           <Typography overflow={'ellipsis'} variant="h6" p={2} lineHeight={.5}>
-              ${checkoutItem.price}
+              ${checkoutItem.price.toFixed(2)}
             </Typography>
 
             <Box
@@ -158,10 +159,13 @@ import { useCart, useProducts } from '../fetch/product';
 
           //Grabs all the user's cart items
           for (let i = 0; i < cart.cartItems.length; i++) {
-            const response = await getProductById(cart.cartItems[i].ProductId);
-            const product = response.json as CheckoutItem;
-            product.amountOrdered = cart.cartItems[i].quantity;
-            checkoutList.push(product)
+            if(cart.cartItems[i].itemStatus === "Added") {
+              const response = await getProductById(cart.cartItems[i].ProductId);
+              const product = response.json as CheckoutItem;
+              product.amountOrdered = cart.cartItems[i].quantity;
+              product.transactionId = cart.cartItems[i].transactionId;
+              checkoutList.push(product)
+            }
           }
           setProducts(checkoutList);
         } else {
@@ -230,9 +234,9 @@ import { useCart, useProducts } from '../fetch/product';
                         </Typography>
                         
                         <Typography variant="h5" textAlign={'left'} sx={{...CustomGridStyle, borderBottom: 0}}>
-                            Total Price: {products.length !== 0 && products
-                              .map((product) => product.price)
-                              .reduce((total, price) => parseFloat((total+price).toFixed(2)))
+                            Total Price: ${products.length !== 0 && products
+                              .map((product) => product.price * product.amountOrdered) //Could cause issue if product.amountOrdered = 0
+                              .reduce((total, price) => total+price, 0).toFixed(2)
                             }
                         </Typography>
                     </Box>

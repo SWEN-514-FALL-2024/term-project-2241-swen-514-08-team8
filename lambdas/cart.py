@@ -1,6 +1,7 @@
 import json
 import boto3
 from boto3.dynamodb.conditions import Key
+from botocore.exceptions import ClientError
 from decimal import Decimal
 
 dynamodb = boto3.resource('dynamodb')
@@ -28,7 +29,9 @@ def add_to_cart(event, context):
 
     product_id = body.get('id')
     quantity = body.get('quantity')
-
+    transactionId = body.get('transactionId')
+    itemStatus = body.get('itemStatus')
+    
     if not product_id or not quantity:
         return {
             'statusCode': 400,
@@ -41,9 +44,13 @@ def add_to_cart(event, context):
                 'UserId': user_id,        #Partition key for the user
                 'ProductId': product_id   #Sort key for the specific product
             },
-            UpdateExpression="SET quantity = :quantity",
+            UpdateExpression="""SET quantity = :quantity,
+                    transactionId = if_not_exists(transactionId, :transactionId),
+                    itemStatus = if_not_exists(itemStatus, :itemStatus)""",
             ExpressionAttributeValues={
-                ':quantity': quantity
+                ':quantity': quantity,
+                ':transactionId': transactionId,
+                ':itemStatus': itemStatus
             },
             ReturnValues="UPDATED_NEW"
         )
@@ -58,12 +65,19 @@ def add_to_cart(event, context):
             },
             'body': json.dumps({'message': 'Product added to cart successfully', 'data': convert_decimals(response)})
         }
-    
-    except Exception as e:
-        print(e)
+    except ClientError as e:
+        # Log detailed DynamoDB client error
+        print("DynamoDB ClientError:", e.response['Error']['Message'])
         return {
             'statusCode': 500,
-            'body': json.dumps({'error': 'Could not update cart'})
+            'body': json.dumps({'error': 'DynamoDB Client Error', 'details': e.response['Error']['Message']})
+        }
+    except Exception as e:
+        # Log generic exception details
+        print("Exception occurred:", str(e))
+        return {
+            'statusCode': 500,
+            'body': json.dumps({'error': 'Could not update cart', 'details': str(e)})
         }
     
 def get_cart(event, context):
