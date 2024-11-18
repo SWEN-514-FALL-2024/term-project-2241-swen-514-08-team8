@@ -8,6 +8,9 @@ import Home from "./components/home";
 import Login from "./components/login";
 import { Products } from "./components/products";
 import SignUp from "./components/signup";
+import Home from './components/home';
+import Checkout from './components/checkout';
+import Transactions from './components/transactions';
 
 export const router = createBrowserRouter([
   {
@@ -50,10 +53,35 @@ export const router = createBrowserRouter([
           element: <CreateProduct />,
         },
       ],
-    },
+    }, {
+    path: '/home',
+    element: <Home />,
+    children: [
+      {
+        // Redirects the root page '/' to /products.
+        index: true,
+        element: <Navigate to="products" replace />,
+      },
+      {
+        path: "products",
+        element: <Products />,
+      },
+      {
+        path: "create",
+        element: <CreateProduct />,
+      },
+      {
+        path: "checkout",
+        element: <Checkout />,
+      },
+      {
+        path: "transactions",
+        element: <Transactions />,
+      },
+    ],
+  },
   {
-    // Any other page provided
     path: "*",
     element: <ErrorPage />,
-  },
+  }, 
 ]);

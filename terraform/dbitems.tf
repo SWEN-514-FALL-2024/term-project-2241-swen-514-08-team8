@@ -1,44 +1,29 @@
 #Testing data to seed the db
-resource "aws_dynamodb_table_item" "item1" {
-    depends_on = [
-        aws_dynamodb_table.user_table
-    ]
-    table_name = aws_dynamodb_table.user_table.name
-    hash_key = aws_dynamodb_table.user_table.hash_key
+# resource "aws_dynamodb_table_item" "item1" {
+#     depends_on = [
+#         aws_dynamodb_table.user_table
+#     ]
+#     table_name = aws_dynamodb_table.user_table.name
+#     hash_key = aws_dynamodb_table.user_table.hash_key
 
-    item = jsonencode({
-        "UserId": {"N": "1"},
-        "UserName": {"S": "Fernando Smith"}
-        })
-}
+#     item = jsonencode({
+#         "UserId": {"N": "1"},
+#         "UserName": {"S": "Fernando Smith"}
+#         })
+# }
 
-resource "aws_dynamodb_table_item" "item2" {
-    depends_on = [
-        aws_dynamodb_table.user_table
-    ]
-    table_name = aws_dynamodb_table.user_table.name
-    hash_key = aws_dynamodb_table.user_table.hash_key
+# resource "aws_dynamodb_table_item" "item2" {
+#     depends_on = [
+#         aws_dynamodb_table.user_table
+#     ]
+#     table_name = aws_dynamodb_table.user_table.name
+#     hash_key = aws_dynamodb_table.user_table.hash_key
 
-    item = jsonencode({
-        "UserId": {"N": "2"},
-        "UserName": {"S": "John Commerce"}
-        })
-}
-
-resource "aws_dynamodb_table_item" "item3" {
-    depends_on = [
-        aws_dynamodb_table.cart_table
-    ]
-    table_name = aws_dynamodb_table.cart_table.name
-    hash_key = aws_dynamodb_table.cart_table.hash_key
-
-    item = jsonencode({
-        "CartId": {"N": "1"},
-        "UserId": {"N": "1"},
-        "ProductId": {"N":"1"}
-        })
-}
-
+#     item = jsonencode({
+#         "UserId": {"N": "2"},
+#         "UserName": {"S": "John Commerce"}
+#         })
+# }
 
 resource "aws_lambda_invocation" "populate_products_invocation" {
     depends_on = [

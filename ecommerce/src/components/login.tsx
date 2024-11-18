@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import {Box, TextField, Button, Typography, Container, Link} from "@mui/material";
 import {CognitoIdentityProviderClient, InitiateAuthCommand, AuthFlowType} from "@aws-sdk/client-cognito-identity-provider";
 import { authConfig } from "./authConfgure";
-
+import { setToken } from "../fetch/accessToken"; 
 
 const cognitoClient = new CognitoIdentityProviderClient({ region: authConfig.Region });
 
@@ -21,6 +21,12 @@ const loginUser = async (email: string, password: string) =>  {
   try {
     const response = await cognitoClient.send(command);
     console.log("User logged in:", response);
+
+    sessionStorage.setItem(
+      "idToken",
+      response.AuthenticationResult?.IdToken || "",
+    );
+    
     return response.AuthenticationResult?.AccessToken;
   } catch (error) {
     console.error("Error logging in user:", error);
@@ -35,9 +41,13 @@ export default function Login() {
 
   const handleLogin = async () => {
     try {
-      await loginUser(email, password);
-      alert("User logged in successfully!");
-      navigate("/home");
+      const accessToken = await loginUser(email, password);
+      if (accessToken){
+        setToken(accessToken);
+        // alert("User logged in successfully!");
+        navigate("/home");
+      }
+      
     } catch (error) {
       alert("Error logging in: " + error);
     }
@@ -57,7 +67,7 @@ export default function Login() {
         <Typography component="h1" variant="h5" textAlign="center">
           Log in
         </Typography>
-        <Box component="form" onSubmit={handleLogin} sx={{ mt: 1 }}>
+        <Box component="form" sx={{ mt: 1 }}>
           <TextField
             margin="normal"
             required

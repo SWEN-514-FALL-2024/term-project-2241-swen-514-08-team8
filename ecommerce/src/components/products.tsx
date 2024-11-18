@@ -13,7 +13,8 @@ import {
   Typography
 } from "@mui/material";
 import { useEffect, useState } from "react";
-import { useProducts } from "../fetch/product";
+import { useCart, useProducts } from '../fetch/product';
+import {v4 as uuidv4} from 'uuid';
 
 export type Product = {
   ProductId: number;
@@ -26,7 +27,16 @@ export type Product = {
   rating_count: number;
 };
 
-export function Product({ product }: { product: Product }) {
+
+export type Cart = {
+  id: String;
+  productId: Number;
+  quantity: Number;
+  transactionId: String;
+  itemStatus: String;
+};
+
+function Product({ product }: { product: Product }) {
   const [isOpen, setOpen] = useState(false);
   const close = () => setOpen(false);
   const open = () => setOpen(true);
@@ -75,7 +85,10 @@ export function Product({ product }: { product: Product }) {
           >
             <Box flexGrow={1} ml={1}>
               <Chip color="success" label={`$${product.price ?? 0}`} />
-            </Box>
+            </Box>          
+            <Button onClick={() => handleAddToCart(product.ProductId)} variant="contained" color="secondary">
+              Add to Cart
+            </Button>
             <Button onClick={open} variant="contained" color="primary">
               View More
             </Button>
@@ -114,7 +127,13 @@ export function Product({ product }: { product: Product }) {
   );
 }
 
-export function Products() {
+const handleAddToCart = async (productId: number) => {
+  const { addToCart } = useCart();
+  const itemId = uuidv4();
+  addToCart({id: itemId, productId: productId, quantity: 1, transactionId: "0", itemStatus: "Added"} as Cart)
+};
+
+export default function Products() {
   const { getProducts } = useProducts();
   const [products, setProducts] = useState<Product[]>([]);
   const [failedRequest, setFailedRequest] = useState<boolean>(false);

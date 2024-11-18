@@ -1,4 +1,6 @@
 import { Product } from '../components/products';
+import { Cart } from '../components/products';
+import { CartItem } from '../components/checkout';
 import { SERVER_URL } from '../constants';
 
 // All endpoints provided by fakestoreapi.com
@@ -8,7 +10,7 @@ export function useProducts() {
     return await getData(SERVER_URL + '/products/');
   }
 
-  async function getProductById(id: number) {
+  async function getProductById(id: number): Promise<RequestResult> {
     return await getData(`${SERVER_URL}/products/${id}`);
   }
 
@@ -26,6 +28,47 @@ export function useProducts() {
     getProducts,
     getProductById,
     createProduct
+  };
+}
+
+export function useCart(){
+  async function addToCart(prodId : Cart) {
+    return await getData(`${SERVER_URL}/cart/`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${sessionStorage.getItem('idToken')}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(prodId),
+    });
+  }
+
+  async function getCart() { 
+    return await getData(SERVER_URL + '/cart/', {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${sessionStorage.getItem('idToken')}`,
+        'Content-Type': 'application/json',
+      },
+      body: null,
+    });
+  }
+
+  async function updateAddedCart(prodId : CartItem): Promise<RequestResult> { 
+    return await getData(SERVER_URL + '/cart/', {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${sessionStorage.getItem('idToken')}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(prodId),
+    });
+  }
+
+  return {
+    addToCart,
+    getCart,
+    updateAddedCart
   };
 }
 

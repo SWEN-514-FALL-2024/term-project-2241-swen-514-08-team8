@@ -1,10 +1,9 @@
 #Creates a DynamoDB tables
 resource "aws_dynamodb_table" "user_table" {
     name = "User"
-    billing_mode = "PROVISIONED" #Should be free-tier
-    read_capacity = 5 
-    write_capacity = 5
+    billing_mode = "PAY_PER_REQUEST" #Should be free-tier
     hash_key = "UserId"
+
     attribute {
         name = "UserId"
         type = "N"
@@ -13,22 +12,41 @@ resource "aws_dynamodb_table" "user_table" {
 
 resource "aws_dynamodb_table" "cart_table" {
     name = "Cart"
-    billing_mode = "PROVISIONED" #Should be free-tier
-    read_capacity = 10
-    write_capacity = 10
-    hash_key = "CartId"
+    billing_mode = "PAY_PER_REQUEST" #Should be free-tier
+    hash_key = "UserId"
+    range_key = "itemId"
+    
+    #Stores carts per user identifier
     attribute {
-        name = "CartId"
-        type = "N"
+        name = "UserId"
+        type = "S"
+    }
+
+
+    attribute {
+        name = "itemId"
+        type = "S"
+    }
+
+    attribute {
+    name = "ProductId"
+    type = "N" 
+  }
+
+    # Define the Global Secondary Index (GSI)
+    global_secondary_index {
+        name               = "UserId-ProductId-index" 
+        hash_key           = "UserId"                   # Partition key for the GSI
+        range_key          = "ProductId"                # Sort key for the GSI
+        projection_type    = "ALL"    
     }
 }
 
 resource "aws_dynamodb_table" "product_table" {
     name = "Product"
-    billing_mode = "PROVISIONED" #Should be free-tier
-    read_capacity = 10 
-    write_capacity = 10
+    billing_mode = "PAY_PER_REQUEST" #Should be free-tier
     hash_key = "ProductId"
+
     attribute {
         name = "ProductId"
         type = "N"
