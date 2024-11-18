@@ -12,6 +12,7 @@ import {
 } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { useCart, useProducts } from '../fetch/product';
+import {v4 as uuidv4} from 'uuid';
 
 export type Product = {
   ProductId: number;
@@ -25,7 +26,8 @@ export type Product = {
 };
 
 export type Cart = {
-  id: Number;
+  id: String;
+  productId: Number;
   quantity: Number;
   transactionId: String;
   itemStatus: String;
@@ -108,7 +110,8 @@ function Product({ product }: { product: Product }) {
 
 const handleAddToCart = async (productId: number) => {
   const { addToCart } = useCart();
-  addToCart({id: productId, quantity: 1, transactionId: "0", itemStatus: "Added"} as Cart)
+  const itemId = uuidv4();
+  addToCart({id: itemId, productId: productId, quantity: 1, transactionId: "0", itemStatus: "Added"} as Cart)
 };
 
 export default function Products() {

@@ -27,7 +27,8 @@ def add_to_cart(event, context):
     else:
         body = event['body']
 
-    product_id = body.get('id')
+    item_id = body.get('id')
+    product_id = body.get('productId')
     quantity = body.get('quantity')
     transactionId = body.get('transactionId')
     itemStatus = body.get('itemStatus')
@@ -39,78 +40,43 @@ def add_to_cart(event, context):
         }
     
     try:
-        response = table.update_item(
-            Key={
-                'UserId': user_id,        #Partition key for the user
-                'ProductId': product_id   #Sort key for the specific product
-            },
-            UpdateExpression="""SET quantity = :quantity,
-                    transactionId = if_not_exists(transactionId, :transactionId),
-                    itemStatus = if_not_exists(itemStatus, :itemStatus)""",
-            # ConditionExpression='attribute_not_exists(itemStatus) OR itemStatus = :currentStatus', 
+        response = table.query(
+            IndexName="UserId-ProductId-index",
+            KeyConditionExpression=Key('UserId').eq(user_id) & Key('ProductId').eq(product_id),
+            FilterExpression='itemStatus = :itemStatus',
             ExpressionAttributeValues={
-                ':quantity': quantity,
-                ':transactionId': transactionId,
-                ':itemStatus': itemStatus
-                # ':currentStatus': "Added"
-            },
-            ReturnValues="UPDATED_NEW"
-        )
-        
-        return {
-            'statusCode': 200,
-            'headers': {
-                'Access-Control-Allow-Credentials': True,
-                'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Headers': 'Content-Type,Authorization',
-                'Access-Control-Allow-Methods': 'OPTIONS,POST,GET'
-            },
-            'body': json.dumps({'message': 'Product added to cart successfully', 'data': convert_decimals(response)})
-        }
+                ':itemStatus': "Added"
+        })
+        if (response['Count'] == 0):
+            response = table.update_item(
+                Key={
+                    'UserId': user_id,        #Partition key for the user
+                    'itemId': item_id   #Sort key for the specific product
+                },
+                UpdateExpression="""SET ProductId = :productId,
+                        quantity = :quantity,
+                        transactionId = :transactionId,
+                        itemStatus = :itemStatus""",
+                ExpressionAttributeValues={
+                    ':productId': product_id,
+                    ':quantity': quantity,
+                    ':transactionId': transactionId,
+                    ':itemStatus': itemStatus
+                },
+                ReturnValues="UPDATED_NEW"
+            )
+            
+            return {
+                'statusCode': 200,
+                'headers': {
+                    'Access-Control-Allow-Credentials': True,
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Headers': 'Content-Type,Authorization',
+                    'Access-Control-Allow-Methods': 'OPTIONS,POST,GET'
+                },
+                'body': json.dumps({'message': 'Product added to cart successfully', 'data': convert_decimals(response)})
+            }
     except ClientError as e:
-        # # Create a new item if none exist or if the same product was purchased/removed in the past    
-        # if e.response['Error']['Code'] == 'ConditionalCheckFailedException':
-        #     try:
-        #         response = table.update_item(
-        #             Key={
-        #             'UserId': user_id,        #Partition key for the user
-        #             'ProductId': product_id   #Sort key for the specific product
-        #         },
-        #         UpdateExpression="""SET quantity = :quantity,
-        #                 transactionId = if_not_exists(transactionId, :transactionId),
-        #                 itemStatus = if_not_exists(itemStatus, :itemStatus)""",
-        #         ExpressionAttributeValues={
-        #             ':quantity': quantity,
-        #             ':transactionId': transactionId,
-        #             ':itemStatus': itemStatus
-        #         },
-        #         ReturnValues="UPDATED_NEW"
-        #         )
-        #         return {
-        #             'statusCode': 200,
-        #             'headers': {
-        #                 'Access-Control-Allow-Credentials': True,
-        #                 'Access-Control-Allow-Origin': '*',
-        #                 'Access-Control-Allow-Headers': 'Content-Type,Authorization',
-        #                 'Access-Control-Allow-Methods': 'OPTIONS,POST,GET'
-        #             },
-        #             'body': json.dumps({'message': 'Product added to cart successfully', 'data': convert_decimals(response)})
-        #         }
-        #     except ClientError as e:
-        #         # Log detailed DynamoDB client error
-        #         print("DynamoDB ClientError:", e.response['Error']['Message'])
-        #         return {
-        #             'statusCode': 500,
-        #             'body': json.dumps({'error': 'DynamoDB Client Error', 'details': e.response['Error']['Message']})
-        #         }
-        #     except Exception as e:
-        #         # Log generic exception details
-        #         print("Exception occurred:", str(e))
-        #         return {
-        #             'statusCode': 500,
-        #             'body': json.dumps({'error': 'Could not update cart', 'details': str(e)})
-        #         }
-        # else:
             # Log detailed DynamoDB client error
             print("DynamoDB ClientError:", e.response['Error']['Message'])
             return {
@@ -164,6 +130,7 @@ def update_added_cart(event, context):
     else:
         body = event['body']
 
+    item_id = body.get('itemId')
     product_id = body.get('ProductId')
     quantity = body.get('quantity')
     transactionId = body.get('transactionId')
@@ -178,14 +145,16 @@ def update_added_cart(event, context):
     try:
         response = table.update_item(
             Key={
-                'UserId': user_id,        #Partition key for the user
-                'ProductId': product_id   #Sort key for the specific product
+                'UserId': user_id,       #Partition key for the user
+                'itemId': item_id                   #Sort key for the specific product
             },
-            UpdateExpression="""SET quantity = :quantity,
+            UpdateExpression="""SET ProductId = :productId,
+                    quantity = :quantity,
                     transactionId = :transactionId,
                     itemStatus = :itemStatus""",
             ConditionExpression='itemStatus = :currentStatus',
             ExpressionAttributeValues={
+                ':productId': product_id,
                 ':quantity': quantity,
                 ':transactionId': transactionId,
                 ':itemStatus': itemStatus,

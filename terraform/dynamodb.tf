@@ -14,7 +14,7 @@ resource "aws_dynamodb_table" "cart_table" {
     name = "Cart"
     billing_mode = "PAY_PER_REQUEST" #Should be free-tier
     hash_key = "UserId"
-    range_key = "ProductId"
+    range_key = "itemId"
     
     #Stores carts per user identifier
     attribute {
@@ -24,8 +24,21 @@ resource "aws_dynamodb_table" "cart_table" {
 
 
     attribute {
-        name = "ProductId"
-        type = "N"
+        name = "itemId"
+        type = "S"
+    }
+
+    attribute {
+    name = "ProductId"
+    type = "N" 
+  }
+
+    # Define the Global Secondary Index (GSI)
+    global_secondary_index {
+        name               = "UserId-ProductId-index" 
+        hash_key           = "UserId"                   # Partition key for the GSI
+        range_key          = "ProductId"                # Sort key for the GSI
+        projection_type    = "ALL"    
     }
 }
 

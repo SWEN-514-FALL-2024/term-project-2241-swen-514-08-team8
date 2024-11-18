@@ -17,6 +17,7 @@ import {v4 as uuidv4} from 'uuid';
 
   
   export type CheckoutItem = {
+    itemId: string
     ProductId: number;
     title: string;
     price: number;
@@ -28,7 +29,7 @@ import {v4 as uuidv4} from 'uuid';
   };
 
   export type CartItem = {
-    UserId: string;
+    itemId: string,
     ProductId: number;
     quantity: number;
     transactionId: string;
@@ -54,7 +55,7 @@ import {v4 as uuidv4} from 'uuid';
     mx: 0
   }
   
-  function CheckoutItem({ checkoutItem, removeItem }: { checkoutItem: CheckoutItem, removeItem: (id: number) => void }) {
+  function CheckoutItem({ checkoutItem, removeItem }: { checkoutItem: CheckoutItem, removeItem: (itemId: string, productId: number) => void }) {
     const [isOpen, setOpen] = useState(false);
     const close = () => setOpen(false);
     const open = () => setOpen(true);
@@ -97,7 +98,7 @@ import {v4 as uuidv4} from 'uuid';
                 <Button onClick={open} variant="contained" color="primary" sx={{ ml: 1 }}>
                   View More
                 </Button>
-                <Button onClick={() => removeItem(checkoutItem.ProductId)} variant="contained" color="error" sx={{ ml: 1 }}>
+                <Button onClick={() => removeItem(checkoutItem.itemId, checkoutItem.ProductId)} variant="contained" color="error" sx={{ ml: 1 }}>
                   Remove
                 </Button>
               </Box>
@@ -146,9 +147,9 @@ import {v4 as uuidv4} from 'uuid';
 
     const placeholderUser: User = {id: 4, username: "John Placeholder", email: "examp1e@mail.gov"}
 
-    const removeItem = (itemId: number) => {
-      updateAddedCart({ProductId: itemId, quantity: 0, transactionId: "0", itemStatus: "Removed"} as CartItem)
-      const newProducts = products.filter((product) => product.ProductId !== itemId) as CheckoutItem[];
+    const removeItem = (itemId: string, productId: number) => {
+      updateAddedCart({itemId: itemId, ProductId: productId, quantity: 0, transactionId: "0", itemStatus: "Removed"} as CartItem)
+      const newProducts = products.filter((product) => product.ProductId !== productId) as CheckoutItem[];
       setProducts(newProducts);
 
       if(newProducts.length === 0) {
@@ -161,11 +162,12 @@ import {v4 as uuidv4} from 'uuid';
     const handlePurchase = async () => {
       if(!empty){
         const transactionId = uuidv4();
-        
+
         const updatePromises = products.map((product) => {
+          const itemId = product.itemId;
           const productId = product.ProductId;
           const quantity = product.amountOrdered;
-          updateAddedCart({ProductId: productId, quantity: quantity, transactionId: transactionId, itemStatus: "Purchased"} as CartItem)
+          updateAddedCart({itemId: itemId, ProductId: productId, quantity: quantity, transactionId: transactionId, itemStatus: "Purchased"} as CartItem)
         });
         await Promise.all(updatePromises);
       }
@@ -185,6 +187,7 @@ import {v4 as uuidv4} from 'uuid';
             if(cart.cartItems[i].itemStatus === "Added") {
               const response = await getProductById(cart.cartItems[i].ProductId);
               const product = response.json as CheckoutItem;
+              product.itemId = cart.cartItems[i].itemId
               product.ProductId = cart.cartItems[i].ProductId;
               product.amountOrdered = cart.cartItems[i].quantity;
               product.transactionId = cart.cartItems[i].transactionId;
