@@ -16,7 +16,12 @@ export default function Header() {
     >
       <Box ml={1} my={'auto'}>
         <Typography variant="h3" my={'auto'}>
-          <ShoppingCart fontSize="large" />
+          <Button 
+            variant="outlined"
+            color="inherit"
+            onClick={() => navigate('/home/checkout')}>
+            <ShoppingCart fontSize="large" />
+          </Button>
           Serverless Ecommerce
         </Typography>
       </Box>
@@ -24,14 +29,14 @@ export default function Header() {
         <Button
           variant="contained"
           color="inherit"
-          onClick={() => navigate('/products')}
+          onClick={() => navigate('/home/products')}
         >
           <Typography variant="h5">Products</Typography>
         </Button>
         <Button
           variant="contained"
           color="inherit"
-          onClick={() => navigate('/create')}
+          onClick={() => navigate('/home/create')}
         >
           <Typography variant="h5">Create Product</Typography>
         </Button>

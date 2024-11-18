@@ -217,6 +217,8 @@ resource "aws_api_gateway_rest_api" "ecommerce-api" {
   name = "ECommerceAPI"
 }
 
+//*** Cart ***\\
+
 resource "aws_api_gateway_resource" "cart" {
   path_part   = "cart"
   parent_id   = aws_api_gateway_rest_api.ecommerce-api.root_resource_id
@@ -259,7 +261,7 @@ resource "aws_api_gateway_method_response" "cart_options_response" {
 
   response_parameters = {
     "method.response.header.Access-Control-Allow-Credentials" = true,
-    "method.response.header.Access-Control-Allow-Headers" = true
+    "method.response.header.Access-Control-Allow-Headers" = true,
     "method.response.header.Access-Control-Allow-Methods" = true,
     "method.response.header.Access-Control-Allow-Origin"  = true,
   }
@@ -288,14 +290,16 @@ resource "aws_api_gateway_integration_response" "cart_options_integration_respon
   status_code = aws_api_gateway_method_response.cart_options_response.status_code
 
   response_parameters = {
-    "method.response.header.Access-Control-Allow-Credentials" = "'true'"
+    "method.response.header.Access-Control-Allow-Credentials" = "'true'",
     "method.response.header.Access-Control-Allow-Origin"  = "'*'",
-    "method.response.header.Access-Control-Allow-Headers" = "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'" 
-    "method.response.header.Access-Control-Allow-Methods" = "'OPTIONS,POST'",
+    "method.response.header.Access-Control-Allow-Headers" = "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'" ,
+    "method.response.header.Access-Control-Allow-Methods" = "'OPTIONS,GET,POST,PUT'",
   }
 
   depends_on = [aws_api_gateway_method_response.cart_options_response]
 }
+
+//*** Cart POST ***\\
 
 resource "aws_api_gateway_method" "cart_post" {
   rest_api_id   = aws_api_gateway_rest_api.ecommerce-api.id
@@ -307,7 +311,7 @@ resource "aws_api_gateway_method" "cart_post" {
   depends_on = [aws_api_gateway_resource.cart]
 }
 
-resource "aws_api_gateway_method_response" "cart_method_response" {
+resource "aws_api_gateway_method_response" "cart_post_method_response" {
   rest_api_id = aws_api_gateway_rest_api.ecommerce-api.id
   resource_id = aws_api_gateway_resource.cart.id
   http_method = aws_api_gateway_method.cart_post.http_method
@@ -320,7 +324,7 @@ resource "aws_api_gateway_method_response" "cart_method_response" {
   depends_on = [aws_api_gateway_method.cart_post]
 }
 
-resource "aws_api_gateway_integration" "cart_integration" {
+resource "aws_api_gateway_integration" "cart_post_integration" {
   rest_api_id             = aws_api_gateway_rest_api.ecommerce-api.id
   resource_id             = aws_api_gateway_resource.cart.id
   http_method             = aws_api_gateway_method.cart_post.http_method
@@ -330,6 +334,8 @@ resource "aws_api_gateway_integration" "cart_integration" {
 
   depends_on = [ aws_api_gateway_method.cart_post]
 }
+
+//*** Cart GET ***\\
 
 resource "aws_api_gateway_method" "cart_get" {
   rest_api_id   = aws_api_gateway_rest_api.ecommerce-api.id
@@ -365,6 +371,44 @@ resource "aws_api_gateway_integration" "cart_get_integration" {
   depends_on = [ aws_api_gateway_method.cart_get]
 }
 
+//*** Cart PUT ***\\
+
+resource "aws_api_gateway_method" "cart_put" {
+  rest_api_id   = aws_api_gateway_rest_api.ecommerce-api.id
+  resource_id   = aws_api_gateway_resource.cart.id
+  http_method   = "PUT"
+  authorization = "COGNITO_USER_POOLS"
+  authorizer_id = aws_api_gateway_authorizer.cognito_authorizer.id
+
+  depends_on = [aws_api_gateway_resource.cart]
+}
+
+resource "aws_api_gateway_method_response" "cart_put_method_response" {
+  rest_api_id = aws_api_gateway_rest_api.ecommerce-api.id
+  resource_id = aws_api_gateway_resource.cart.id
+  http_method = aws_api_gateway_method.cart_put.http_method
+  status_code = 200 
+
+  response_parameters = {
+    "method.response.header.Access-Control-Allow-Origin" = true,
+  }
+
+  depends_on = [aws_api_gateway_method.cart_put]
+}
+
+resource "aws_api_gateway_integration" "cart_put_integration" {
+  rest_api_id             = aws_api_gateway_rest_api.ecommerce-api.id
+  resource_id             = aws_api_gateway_resource.cart.id
+  http_method             = aws_api_gateway_method.cart_put.http_method
+  integration_http_method = "POST"
+  type                    = "AWS_PROXY"
+  uri                     = aws_lambda_function.update_added_cart_lambda.invoke_arn
+
+  depends_on = [ aws_api_gateway_method.cart_put]
+}
+
+//*** Cognito and Final Setup ***\\
+
 resource "aws_api_gateway_authorizer" "cognito_authorizer" {
   name          = "CognitoAuthorizer"
   rest_api_id   = aws_api_gateway_rest_api.ecommerce-api.id
@@ -383,7 +427,7 @@ resource "aws_api_gateway_deployment" "ecommerce-api" {
     create_before_destroy = true
   }
 
-  depends_on = [aws_api_gateway_integration_response.cart_options_integration_response, aws_api_gateway_integration.cart_integration, aws_api_gateway_integration.cart_get_integration]
+  depends_on = [aws_api_gateway_integration_response.cart_options_integration_response, aws_api_gateway_integration.cart_post_integration, aws_api_gateway_integration.cart_get_integration, aws_api_gateway_integration.cart_put_integration]
 }
 
 resource "aws_api_gateway_stage" "ecommerce-api-stage" {
