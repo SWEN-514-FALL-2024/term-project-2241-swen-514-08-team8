@@ -13,10 +13,10 @@ import {
   Typography
 } from "@mui/material";
 import { useEffect, useState } from "react";
+import { v4 as uuidv4 } from 'uuid';
 import { useCart, useProducts } from '../fetch/product';
-import {v4 as uuidv4} from 'uuid';
 
-export type Product = {
+type ProductType = {
   ProductId: number;
   title: string;
   price: number;
@@ -28,15 +28,15 @@ export type Product = {
 };
 
 
-export type Cart = {
-  id: String;
-  productId: Number;
-  quantity: Number;
-  transactionId: String;
-  itemStatus: String;
+type Cart = {
+  id: string;
+  productId: number;
+  quantity: number;
+  transactionId: string;
+  itemStatus: string;
 };
 
-function Product({ product }: { product: Product }) {
+function Product({ product, handleAddToCart }: { product: ProductType, handleAddToCart: (productId: number) => void }) {
   const [isOpen, setOpen] = useState(false);
   const close = () => setOpen(false);
   const open = () => setOpen(true);
@@ -127,22 +127,23 @@ function Product({ product }: { product: Product }) {
   );
 }
 
-const handleAddToCart = async (productId: number) => {
-  const { addToCart } = useCart();
-  const itemId = uuidv4();
-  addToCart({id: itemId, productId: productId, quantity: 1, transactionId: "0", itemStatus: "Added"} as Cart)
-};
-
-export default function Products() {
+function Products() {
   const { getProducts } = useProducts();
-  const [products, setProducts] = useState<Product[]>([]);
+  const [products, setProducts] = useState<ProductType[]>([]);
   const [failedRequest, setFailedRequest] = useState<boolean>(false);
+  const { addToCart } = useCart();
+
+
+  const handleAddToCart = async (productId: number) => {
+    const itemId = uuidv4();
+    addToCart({id: itemId, productId: productId, quantity: 1, transactionId: "0", itemStatus: "Added"} as Cart)
+  };
 
   useEffect(() => {
     async function load() {
       const res = await getProducts();
       if (res.success) {
-        setProducts(res.json as Product[]);
+        setProducts(res.json as ProductType[]);
       } else {
         setFailedRequest(true);
       }
@@ -177,9 +178,14 @@ export default function Products() {
         {products
           .sort((p1, p2) => p1.category.localeCompare(p2.category)) // sort by category
           .map((product, i) => (
-            <Product key={i} product={product} />
+            <Product key={i} product={product} handleAddToCart={handleAddToCart}/>
           ))}
       </Box>
     </Stack>
   );
 }
+
+
+export { Product, Products };
+export type { ProductType, Cart };
+

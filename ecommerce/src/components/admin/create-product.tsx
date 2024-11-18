@@ -9,6 +9,7 @@ import {
   useForm,
 } from "react-hook-form-mui";
 import { z } from "zod";
+
 import { Product } from "../products";
 
 export default function CreateProduct() {
@@ -188,6 +189,7 @@ export default function CreateProduct() {
                 rating_count: watched[5],
                 rating_rate: watched[6],
               }}
+              handleAddToCart={() => {}} // No need to add to cart
             />
           }
         </Box>

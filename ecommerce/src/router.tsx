@@ -2,14 +2,13 @@ import { createBrowserRouter, Navigate } from "react-router-dom";
 import AdminHome from "./components/admin/admin-home";
 import AdminOutlet from "./components/admin/admin-outlet";
 import CreateProduct from "./components/admin/create-product";
+import Checkout from './components/checkout';
 import ConfirmUser from "./components/confirmUser";
 import ErrorPage from "./components/error-page";
-import Home from "./components/home";
+import Home from './components/home';
 import Login from "./components/login";
 import { Products } from "./components/products";
 import SignUp from "./components/signup";
-import Home from './components/home';
-import Checkout from './components/checkout';
 import Transactions from './components/transactions';
 
 export const router = createBrowserRouter([
