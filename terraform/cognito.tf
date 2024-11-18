@@ -12,6 +12,12 @@ resource "aws_cognito_user_pool" "my_user_pool" {
     require_numbers   = true
     require_symbols   = true
   }
+  schema {
+    name = "admin"
+    attribute_data_type = "Boolean"
+    mutable = true
+    required = false
+  }
 }
 
 
@@ -34,6 +40,18 @@ resource "aws_cognito_user" "test_user" {
     email_verified = true
   }
 }
+
+resource "aws_cognito_user" "admin_user" {
+  user_pool_id = aws_cognito_user_pool.my_user_pool.id
+  username     = "admin@gmail.com"
+  password     = "Password1$"
+  attributes = {
+    email = "admin@gmail.com"
+    email_verified = true
+    admin = true
+  }
+}
+
 
 # resource "aws_cognito_user_group" "admin_group" {
 #   name         = "Admins"

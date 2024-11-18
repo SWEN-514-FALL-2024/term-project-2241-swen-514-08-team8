@@ -3,14 +3,16 @@ import {
   Button,
   Card,
   CardActions,
-  CardContent,
   CardMedia,
+  Chip,
   CircularProgress,
+  Divider,
   Modal,
+  Rating,
   Stack,
-  Typography,
-} from '@mui/material';
-import { useEffect, useState } from 'react';
+  Typography
+} from "@mui/material";
+import { useEffect, useState } from "react";
 import { useCart, useProducts } from '../fetch/product';
 import {v4 as uuidv4} from 'uuid';
 
@@ -24,6 +26,7 @@ export type Product = {
   rating_rate: number;
   rating_count: number;
 };
+
 
 export type Cart = {
   id: String;
@@ -40,33 +43,49 @@ function Product({ product }: { product: Product }) {
 
   return (
     <>
-      <Card sx={{ width: '450px' }}>
-        <Box display={'flex'} flexDirection={'row'}>
-          <CardMedia sx={{ m: 3 }}>
-            <img
-              src={product.image}
-              width={'150px'}
-              height={'150px'}
-              style={{ objectFit: 'cover', overflow: 'hidden', margin: 'auto' }}
-            />
-          </CardMedia>
-          <Typography overflow={'clip'} variant="h5" p={3} lineHeight={1}>
-            {product.title}
-          </Typography>
-        </Box>
-        <CardContent>
-          <Typography>
-            Ratings: {product.rating_rate} ({product.rating_count})
-          </Typography>
-        </CardContent>
+      <Card sx={{ 
+        width: "450px",
+        transition: 'transform 0.3s ease-in-out',
+        ":hover": {
+          transform: "scale(1.01)",
+        }}}>
+        <CardMedia image={product.image} component={'img'} sx={{
+          width: '100%',
+          height: 200, // Set a consistent height for all images
+          objectFit: 'cover', // Ensure the image covers the area without distortion
+        }}> 
+        </CardMedia>
+        <Stack p={2} divider={<Divider/>} gap={2}>
+          <Box>
+            <Typography variant="h5" lineHeight={1}   
+              sx={{
+                  overflow: 'hidden',
+                  display: '-webkit-box',
+                  WebkitBoxOrient: 'vertical',
+                  WebkitLineClamp: 2,
+                  textOverflow: 'ellipsis',
+                }}>
+              {product.title}
+            </Typography>
+            <Stack gap={2} direction={'row'} mt={1}>
+              <Rating value={product.rating_rate}  precision={.1} readOnly />              
+              <Typography>
+                ({product.rating_count})
+              </Typography>
+            </Stack>
+          </Box>
+        </Stack>
         <CardActions>
           <Box
-            display={'flex'}
-            width={'100%'}
-            height={'100%'}
-            justifyContent={'end'}
-            mt={'auto'}
-          >            
+            display={"flex"}
+            width={"100%"}
+            height={"100%"}
+            justifyContent={"end"}
+            mt={"auto"}
+          >
+            <Box flexGrow={1} ml={1}>
+              <Chip color="success" label={`$${product.price ?? 0}`} />
+            </Box>          
             <Button onClick={() => handleAddToCart(product.ProductId)} variant="contained" color="secondary">
               Add to Cart
             </Button>
@@ -80,24 +99,24 @@ function Product({ product }: { product: Product }) {
       <Modal open={isOpen}>
         <Box
           sx={{
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            width: 'fit-content',
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: "fit-content",
             maxWidth: 1000,
             minWidth: 300,
-            bgcolor: 'white',
-            border: '2px solid #000',
+            bgcolor: "white",
+            border: "2px solid #000",
             boxShadow: 24,
             p: 4,
           }}
         >
           <Typography variant="h3">{product.title}</Typography>
-          <Box display={'inline-block'}>
+          <Box display={"inline-block"}>
             <Typography variant="body1">{product.description}</Typography>
           </Box>
-          <Box display={'flex'} width={'100%'} justifyContent={'end'}>
+          <Box display={"flex"} width={"100%"} justifyContent={"end"}>
             <Button onClick={close} variant="contained" color="error">
               Close
             </Button>
@@ -133,25 +152,27 @@ export default function Products() {
   }, []);
 
   return (
-    <Stack direction={'column'}>
-      <Typography variant="h1" textAlign={'center'}>
+    <Stack direction={"column"}>
+      <Typography variant="h1" textAlign={"center"}>
         Products
       </Typography>
       {products.length === 0 && (
-        <CircularProgress size={40} sx={{ mx: 'auto', my: 'auto' }} />
+        <CircularProgress size={40} sx={{ mx: "auto", my: "auto" }} />
       )}
       <Box
-        flexWrap={'wrap'}
-        display={'flex'}
-        flexDirection={'row'}
+        flexWrap={"wrap"}
+        display={"flex"}
+        flexDirection={"row"}
         gap={3}
-        mx={'auto'}
-        width={'fit-content'}
-        justifyContent={'center'}
+        mx={"auto"}
+        width={"fit-content"}
+        justifyContent={"center"}
       >
         {failedRequest && (
-          <Typography variant='h3'>Failed to reach server. Make sure terraform is running!</Typography>)
-          }
+          <Typography variant="h3">
+            Failed to reach server. Make sure terraform is running!
+          </Typography>
+        )}
         {/* <Product product={products[0]} /> */}
         {products
           .sort((p1, p2) => p1.category.localeCompare(p2.category)) // sort by category
