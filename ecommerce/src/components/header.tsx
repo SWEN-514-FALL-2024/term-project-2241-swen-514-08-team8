@@ -1,49 +1,54 @@
-import { AccountCircle, ShoppingCart } from '@mui/icons-material';
-import { Box, Button, Typography } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
+import { AccountCircle, ShoppingBag } from '@mui/icons-material';
+import { AppBar, Box, IconButton, Tab, Tabs, Toolbar, Typography } from '@mui/material';
+import { useEffect, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 
-export default function Header() {
+export default function Header({ auth }: { auth: boolean }) {
   const navigate = useNavigate();
+  const location = useLocation();
+  const [page, setPage] = useState(location.pathname);
+
+  useEffect(() => {
+    setPage(location.pathname);
+  }, [location.pathname]);
+
+  const handlePageChange = (event: React.SyntheticEvent, newValue: string) => {
+    setPage(newValue);
+    navigate(newValue);
+  };
 
   return (
-    <Box
-      width={'100%'}
-      height={'70px'}
-      bgcolor={'grey.200'}
-      justifyItems={'center'}
-      display={'flex'}
-      flexDirection={'row'}
-    >
-      <Box ml={1} my={'auto'}>
-        <Typography variant="h3" my={'auto'}>
-          <Button 
-            variant="outlined"
-            color="inherit"
-            onClick={() => navigate('/home/checkout')}>
-            <ShoppingCart fontSize="large" />
-          </Button>
-          Serverless Ecommerce
-        </Typography>
-      </Box>
-      <Box ml={'auto'} my={'auto'} mr={3} gap={3} width={'fit-content'}>
-        <Button
-          variant="contained"
-          color="inherit"
-          onClick={() => navigate('/home/products')}
-        >
-          <Typography variant="h5">Products</Typography>
-        </Button>
-        <Button
-          variant="contained"
-          color="inherit"
-          onClick={() => navigate('/home/create')}
-        >
-          <Typography variant="h5">Create Product</Typography>
-        </Button>
-      </Box>
-      <Box my={'auto'} mr={3}>
-        <AccountCircle sx={{ fontSize: '50px' }} />
-      </Box>
+    <Box sx={{ flexGrow: 1 }}>
+      <AppBar position="static">
+        <Toolbar>
+          <ShoppingBag sx={{mr: 2}} fontSize='medium'/>
+          <Typography variant="h4" component="div" sx={{ flexGrow: 1 }}>
+            Serverless Ecommerce
+          </Typography>
+          <Tabs
+            value={page}
+            onChange={handlePageChange}
+            textColor="inherit"
+            TabIndicatorProps={{ style: { background: "white" } }}
+            aria-label="navigation tabs"
+          >
+            <Tab label="View Products" value="/home/products" />
+            <Tab label="Checkout" value="/home/checkout" />
+            <Tab label="Transactions" value="/home/transactions" />
+          </Tabs>
+          {auth && (
+            <IconButton
+              size="large"
+              aria-label="account of current user"
+              aria-controls="menu-appbar"
+              aria-haspopup="true"
+              color="inherit"
+            >
+              <AccountCircle />
+            </IconButton>
+          )}
+        </Toolbar>
+      </AppBar>
     </Box>
   );
 }
