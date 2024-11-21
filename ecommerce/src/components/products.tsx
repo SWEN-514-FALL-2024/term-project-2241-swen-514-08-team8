@@ -9,7 +9,8 @@ import { v4 as uuidv4 } from 'uuid';
 import { useCart, useProducts } from '../fetch/product';
 import { Cart, ProductType } from "../types";
 import Product from "./product";
-import { useNotification } from "./alerts";
+import { useNotification } from "./providers/alerts";
+import { useCartContext } from "./providers/cart-count";
 
 function Products() {
   const { getProducts } = useProducts();
@@ -17,12 +18,13 @@ function Products() {
   const [products, setProducts] = useState<ProductType[]>([]);
   const [failedRequest, setFailedRequest] = useState<boolean>(false);
   const { addToCart } = useCart();
-
+  const { refreshCartCount } = useCartContext();
 
   const handleAddToCart = async (productId: number) => {
     const itemId = uuidv4();
     addToCart({id: itemId, productId: productId, quantity: 1, transactionId: "0", itemStatus: "Added"} as Cart)
     notify("Item added to cart", "success");
+    await refreshCartCount()
   };
 
   useEffect(() => {

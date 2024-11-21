@@ -10,8 +10,8 @@ import {
 } from "react-hook-form-mui";
 import { z } from "zod";
 
-import { useNotification } from "../alerts";
 import Product from "../product";
+import { useNotification } from "../providers/alerts";
 
 export default function CreateProduct() {
   const form = useForm({
