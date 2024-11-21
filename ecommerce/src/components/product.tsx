@@ -1,4 +1,5 @@
-import { Box, Button, Card, CardActions, CardMedia, Chip, Divider, Modal, Rating, Stack, Typography } from "@mui/material";
+import { Add } from "@mui/icons-material";
+import { Box, Button, ButtonBase, Card, CardActions, CardMedia, Chip, Divider, Modal, Rating, Stack, Typography } from "@mui/material";
 import { useState } from "react";
 import { ProductType } from "../types";
 
@@ -9,12 +10,16 @@ export default function Product({ product, handleAddToCart }: { product: Product
 
     return (
       <>
+      <ButtonBase onClick={open} disableRipple>
         <Card sx={{ 
           width: "450px",
-          transition: 'transform 0.3s ease-in-out',
+          transition: 'transform 0.1s ease-in-out, box-shadow 0.1s ease-in-out',
           ":hover": {
             transform: "scale(1.01)",
-          }}}>
+            boxShadow: 5
+          },
+          boxShadow: 3
+          }}>
           <CardMedia image={product.image} component={'img'} sx={{
             width: '100%',
             height: 200, // Set a consistent height for all images
@@ -30,6 +35,7 @@ export default function Product({ product, handleAddToCart }: { product: Product
                     WebkitBoxOrient: 'vertical',
                     WebkitLineClamp: 2,
                     textOverflow: 'ellipsis',
+                    height: '48px', // Set a fixed height for the title
                   }}>
                 {product.title}
               </Typography>
@@ -49,18 +55,19 @@ export default function Product({ product, handleAddToCart }: { product: Product
               justifyContent={"end"}
               mt={"auto"}
             >
-              <Box flexGrow={1} ml={1}>
-                <Chip color="success" label={`$${product.price ?? 0}`} />
+              <Box ml={1} mr={'auto'}>
+                <Chip color="info" label={`$${product.price ?? 0}`} />
               </Box>          
-              <Button onClick={() => handleAddToCart(product.ProductId)} variant="contained" color="secondary">
+              <Button onClick={(e) => { e.stopPropagation(); handleAddToCart(product.ProductId); }} variant="contained" color="info" startIcon={<Add/>} >
                 Add to Cart
               </Button>
-              <Button onClick={open} variant="contained" color="primary">
+              {/* <Button onClick={open} variant="contained" color="primary">
                 View More
-              </Button>
+              </Button> */}
             </Box>
           </CardActions>
         </Card>
+      </ButtonBase>
         {/* Modal won't take up space. */}
         <Modal open={isOpen}>
           <Box

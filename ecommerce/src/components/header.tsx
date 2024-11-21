@@ -1,7 +1,7 @@
 import { AccountCircle, Receipt, Search, ShoppingBag, ShoppingCart } from '@mui/icons-material';
 import { AppBar, Badge, Box, IconButton, Tab, Tabs, Toolbar, Typography } from '@mui/material';
 import { useEffect, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useCartContext } from './providers/cart-count';
 
 export default function Header({ auth }: { auth: boolean }) {
@@ -28,21 +28,24 @@ export default function Header({ auth }: { auth: boolean }) {
       <AppBar position="static">
         <Toolbar>
           <ShoppingBag sx={{mr: 2}} fontSize='medium'/>
-          <Typography variant="h4" component="div" sx={{ flexGrow: 1 }}>
-            Serverless Ecommerce
-          </Typography>
+          <Link to='/home/products' style={{ textDecoration: 'none', color: 'inherit' }}>
+            <Typography variant="h4" component="div" sx={{ flexGrow: 1 }}>
+              Serverless Ecommerce
+            </Typography>
+          </Link>
           <Tabs
             value={page}
             onChange={handlePageChange}
             textColor="inherit"
             TabIndicatorProps={{ style: { background: 'white' } }}
             aria-label="navigation tabs"
+            sx={{ml: 'auto'}}
           >
             <Tab
               label={
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                   <Search sx={{ mr: 1 }} />
-                  View Products
+                  Catalog
                 </Box>
               }
               value="/home/products"
