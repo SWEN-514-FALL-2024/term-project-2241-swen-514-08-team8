@@ -10,7 +10,8 @@ import {
 } from "react-hook-form-mui";
 import { z } from "zod";
 
-import { Product } from "../products";
+import Product from "../product";
+import { useNotification } from "../providers/alerts";
 
 export default function CreateProduct() {
   const form = useForm({
@@ -35,7 +36,7 @@ export default function CreateProduct() {
           .min(0.01, "Price must be at least 0.01"),
         Category: z.string().min(1, "Category is required"),
         Image: z.any(),
-        RatingCount: z.number().int().min(0, "Rating count must be positive"),
+        RatingCount: z.coerce.number().int().min(1, "Rating count must be positive"),
         RatingStars: z.coerce
           .number()
           .min(0, "Rating stars must be positive")
@@ -45,6 +46,7 @@ export default function CreateProduct() {
   });
 
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const { notify } = useNotification();
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -86,7 +88,7 @@ export default function CreateProduct() {
       </Typography>
       <Stack direction={"row"} gap={3}>
         <FormContainer formContext={form}>
-          <Stack direction={"column"} height={"fit-content"} gap={3}>
+          <Stack direction={"column"} height={"fit-content"} gap={1}>
             <TextFieldElement
               name="Name"
               label="Name"
@@ -158,10 +160,9 @@ export default function CreateProduct() {
               variant="contained"
               startIcon={<Create />}
               onClick={() => {
-                form.handleSubmit((data) => {
-                  console.log(data);
+                form.handleSubmit(() => {
+                  notify("Product created successfully", "success");
                 })();
-
               }}
             >
               Create
@@ -169,15 +170,15 @@ export default function CreateProduct() {
           </Stack>
         </FormContainer>
         <Box>
-          <Typography variant="h3">Preview</Typography>
-          {
-            // "Name",
-            // "Description",
-            // "Price",
-            // "Category",
-            // "Image",
-            // "RatingCount",
-            // "RatingStars",
+            <Typography variant="h3">Preview</Typography>
+            {
+              // "Name",
+              // "Description",
+              // "Price",
+              // "Category",
+              // "Image",
+              // "RatingCount",
+              // "RatingStars",
             <Product
               product={{
                 ProductId: -1,

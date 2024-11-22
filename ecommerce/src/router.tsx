@@ -24,20 +24,6 @@ export const router = createBrowserRouter([
     },{
       path: "/confirm",
       element: <ConfirmUser />,
-    },{
-      path: "/home",
-      element: <Home />,
-      children: [
-        {
-          // Redirects the root page '/' to /products.
-          index: true,
-          element: <Navigate to="products" replace />,
-        },
-        {
-          path: "products",
-          element: <Products />,
-        },
-      ]
     },
     {
       path: "/admin",
@@ -64,10 +50,6 @@ export const router = createBrowserRouter([
       {
         path: "products",
         element: <Products />,
-      },
-      {
-        path: "create",
-        element: <CreateProduct />,
       },
       {
         path: "checkout",

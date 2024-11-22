@@ -12,8 +12,8 @@ import {
 } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { v4 as uuidv4 } from 'uuid';
 import { useCart, useProducts } from '../fetch/product';
-import {v4 as uuidv4} from 'uuid';
 
   
   export type CheckoutItem = {
@@ -170,8 +170,8 @@ import {v4 as uuidv4} from 'uuid';
           updateAddedCart({itemId: itemId, ProductId: productId, quantity: quantity, transactionId: transactionId, itemStatus: "Purchased"} as CartItem)
         });
         await Promise.all(updatePromises);
+        navigate('/home/transactions')
       }
-      navigate('/home/transactions')
     };
   
     useEffect(() => {
@@ -259,7 +259,8 @@ import {v4 as uuidv4} from 'uuid';
                 <Box sx={{
                     width: '100%', 
                     border: 1,
-                    boxShadow:0
+                    boxShadow:0,
+                    bgcolor: 'white'
                 }}>
                     <Box>
                         <Typography variant="h5" textAlign={'left'} sx={CustomGridStyle}>

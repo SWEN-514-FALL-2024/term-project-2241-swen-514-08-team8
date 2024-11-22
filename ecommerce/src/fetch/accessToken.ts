@@ -1,19 +1,18 @@
-// tokenStore.ts
-let tokens: string = "";
+import Cookies from 'js-cookie';
 
 export const setToken = (token: string) => {
-  tokens = token;
+  Cookies.set("accessToken", token, { expires: 1 });
 };
 
 export const hasToken = () => {
-  return tokens !== "";
+  return getTokens() !== undefined;
 };
 
 export const getTokens = () => {
-  return tokens;
+  return Cookies.get("accessToken") || "";
 };
 
 export const clearTokens = () => {
-  tokens = "";
+  Cookies.remove("accessToken");
 };
  

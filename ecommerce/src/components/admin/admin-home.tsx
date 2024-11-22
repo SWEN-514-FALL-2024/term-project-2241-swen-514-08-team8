@@ -1,6 +1,6 @@
 import { Box, Button, Stack, Typography } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import { useNotification } from "../alerts";
+import { useNotification } from "../providers/alerts";
 
 export default function AdminHome() {
   const nav = useNavigate();

@@ -1,191 +1,138 @@
+import { Search } from "@mui/icons-material";
 import {
   Box,
   Button,
-  Card,
-  CardActions,
-  CardMedia,
-  Chip,
   CircularProgress,
-  Divider,
-  Modal,
-  Rating,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
   Stack,
+  TextField,
   Typography
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import { v4 as uuidv4 } from 'uuid';
 import { useCart, useProducts } from '../fetch/product';
-
-type ProductType = {
-  ProductId: number;
-  title: string;
-  price: number;
-  description: string;
-  category: string;
-  image: string;
-  rating_rate: number;
-  rating_count: number;
-};
-
-
-type Cart = {
-  id: string;
-  productId: number;
-  quantity: number;
-  transactionId: string;
-  itemStatus: string;
-};
-
-function Product({ product, handleAddToCart }: { product: ProductType, handleAddToCart: (productId: number) => void }) {
-  const [isOpen, setOpen] = useState(false);
-  const close = () => setOpen(false);
-  const open = () => setOpen(true);
-
-  return (
-    <>
-      <Card sx={{ 
-        width: "450px",
-        transition: 'transform 0.3s ease-in-out',
-        ":hover": {
-          transform: "scale(1.01)",
-        }}}>
-        <CardMedia image={product.image} component={'img'} sx={{
-          width: '100%',
-          height: 200, // Set a consistent height for all images
-          objectFit: 'cover', // Ensure the image covers the area without distortion
-        }}> 
-        </CardMedia>
-        <Stack p={2} divider={<Divider/>} gap={2}>
-          <Box>
-            <Typography variant="h5" lineHeight={1}   
-              sx={{
-                  overflow: 'hidden',
-                  display: '-webkit-box',
-                  WebkitBoxOrient: 'vertical',
-                  WebkitLineClamp: 2,
-                  textOverflow: 'ellipsis',
-                }}>
-              {product.title}
-            </Typography>
-            <Stack gap={2} direction={'row'} mt={1}>
-              <Rating value={product.rating_rate}  precision={.1} readOnly />              
-              <Typography>
-                ({product.rating_count})
-              </Typography>
-            </Stack>
-          </Box>
-        </Stack>
-        <CardActions>
-          <Box
-            display={"flex"}
-            width={"100%"}
-            height={"100%"}
-            justifyContent={"end"}
-            mt={"auto"}
-          >
-            <Box flexGrow={1} ml={1}>
-              <Chip color="success" label={`$${product.price ?? 0}`} />
-            </Box>          
-            <Button onClick={() => handleAddToCart(product.ProductId)} variant="contained" color="secondary">
-              Add to Cart
-            </Button>
-            <Button onClick={open} variant="contained" color="primary">
-              View More
-            </Button>
-          </Box>
-        </CardActions>
-      </Card>
-      {/* Modal won't take up space. */}
-      <Modal open={isOpen}>
-        <Box
-          sx={{
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            width: "fit-content",
-            maxWidth: 1000,
-            minWidth: 300,
-            bgcolor: "white",
-            border: "2px solid #000",
-            boxShadow: 24,
-            p: 4,
-          }}
-        >
-          <Typography variant="h3">{product.title}</Typography>
-          <Box display={"inline-block"}>
-            <Typography variant="body1">{product.description}</Typography>
-          </Box>
-          <Box display={"flex"} width={"100%"} justifyContent={"end"}>
-            <Button onClick={close} variant="contained" color="error">
-              Close
-            </Button>
-          </Box>
-        </Box>
-      </Modal>
-    </>
-  );
-}
+import { Cart, ProductType } from '../types';
+import Product from "./product";
+import { useNotification } from "./providers/alerts";
+import { useCartContext } from "./providers/cart-count";
 
 function Products() {
   const { getProducts } = useProducts();
+  const { notify } = useNotification();
   const [products, setProducts] = useState<ProductType[]>([]);
+  const [filteredProducts, setFilteredProducts] = useState<ProductType[]>([]);
+  const [searchTerm, setSearchTerm] = useState<string>('');
+  const [category, setCategory] = useState<string>('All');
   const [failedRequest, setFailedRequest] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
   const { addToCart } = useCart();
-
+  const { refreshCartCount } = useCartContext();
 
   const handleAddToCart = async (productId: number) => {
     const itemId = uuidv4();
     addToCart({id: itemId, productId: productId, quantity: 1, transactionId: "0", itemStatus: "Added"} as Cart)
+    notify("Item added to cart", "success");
+    await refreshCartCount()
   };
 
   useEffect(() => {
     async function load() {
+      setLoading(true);
       const res = await getProducts();
       if (res.success) {
         setProducts(res.json as ProductType[]);
+        setFilteredProducts(res.json as ProductType[]);
+        setLoading(false);
       } else {
         setFailedRequest(true);
+        setLoading(false);
       }
     }
     load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const handleSearch = () => {
+    setLoading(true);
+    setTimeout(() => {
+      let filtered = products;
+
+      if (searchTerm) {
+        filtered = filtered.filter(product =>
+          product.title.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+      }
+
+      if (category !== 'All') {
+        filtered = filtered.filter(product => product.category === category);
+      }
+
+      setFilteredProducts(filtered);
+      setLoading(false);
+    }, 500); // Simulates delay for loading. (UX)
+  };
+
   return (
-    <Stack direction={"column"}>
+    <Stack direction={"column"} spacing={2}>
       <Typography variant="h1" textAlign={"center"}>
-        Products
+        Product Catalog
       </Typography>
-      {products.length === 0 && (
-        <CircularProgress size={40} sx={{ mx: "auto", my: "auto" }} />
-      )}
-      <Box
-        flexWrap={"wrap"}
-        display={"flex"}
-        flexDirection={"row"}
-        gap={3}
-        mx={"auto"}
-        width={"fit-content"}
-        justifyContent={"center"}
-      >
-        {failedRequest && (
-          <Typography variant="h3">
-            Failed to reach server. Make sure terraform is running!
-          </Typography>
-        )}
-        {/* <Product product={products[0]} /> */}
-        {products
-          .sort((p1, p2) => p1.category.localeCompare(p2.category)) // sort by category
-          .map((product, i) => (
-            <Product key={i} product={product} handleAddToCart={handleAddToCart}/>
-          ))}
+      <Box display="flex" justifyContent="center" gap={2}>
+        <TextField
+          label="Search"
+          variant="outlined"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+        <FormControl variant="outlined">
+          <InputLabel>Category</InputLabel>
+          <Select
+            value={category}
+            onChange={(e) => setCategory(e.target.value as string)}
+            label="Category"
+            sx={{ minWidth: 150 }} // Adjust this value as needed
+          >
+            <MenuItem value="All">All</MenuItem>
+            {[...new Set(products.map(product => product.category))].map((category, i) => (
+              <MenuItem key={i} value={category}>{category}</MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+        <Button variant="contained" color="primary" onClick={handleSearch} startIcon={<Search />}>
+          Search
+        </Button>
       </Box>
+      {loading ? (
+        <Box display="flex" justifyContent="center" alignItems="center" height="50vh">
+          <CircularProgress size={40} />
+        </Box>
+      ) : (
+        <Box
+          flexWrap={"wrap"}
+          display={"flex"}
+          flexDirection={"row"}
+          gap={3}
+          mx={"auto"}
+          width={"fit-content"}
+          justifyContent={"center"}
+        >
+          {failedRequest && (
+            <Typography variant="h3">
+              Failed to reach server. Make sure terraform is running!
+            </Typography>
+          )}
+          {filteredProducts
+            .sort((p1, p2) => p1.category.localeCompare(p2.category)) // sort by category
+            .map((product, i) => (
+              <Product key={i} product={product} handleAddToCart={handleAddToCart}/>
+            ))}
+        </Box>
+      )}
     </Stack>
   );
 }
 
-
-export { Product, Products };
-export type { ProductType, Cart };
-
+export { Products };

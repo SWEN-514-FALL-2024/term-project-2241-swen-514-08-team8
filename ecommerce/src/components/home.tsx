@@ -1,9 +1,10 @@
 import { Box } from '@mui/material';
+import Cookies from 'js-cookie';
 import { useEffect, useState } from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
-import Header from './header';
 import { getTokens, hasToken } from '../fetch/accessToken';
-import Cookies from 'js-cookie';
+import Header from './header';
+import { CartCountProvider } from './providers/cart-count';
 
 export default function Home() {
   // const [authenticated, setAuthenticated] = useState<boolean | null>(null);
@@ -25,9 +26,10 @@ export default function Home() {
   }
 
   return (
-    <Box>
-        <Header />
-        <Outlet />
-    </Box>
+    <CartCountProvider>
+      <Header auth={true} />
+      <Box mt={10}/>
+      <Outlet />
+    </CartCountProvider>
   );
 }

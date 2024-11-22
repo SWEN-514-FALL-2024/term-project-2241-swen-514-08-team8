@@ -52,7 +52,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
             onClose={handleClose}
             anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
           >
-            <Alert onClose={handleClose} severity={notification.severity} sx={{ width: '100%' }}>
+            <Alert onClose={handleClose} severity={notification.severity} sx={{ width: '100%', fontSize: '1rem', fontWeight: 'bold', fontStyle: "italic" }}>
               {notification.message}
             </Alert>
           </Snackbar>

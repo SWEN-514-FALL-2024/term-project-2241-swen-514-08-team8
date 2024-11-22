@@ -1,10 +1,10 @@
 // Login.tsx
+import { AuthFlowType, CognitoIdentityProviderClient, InitiateAuthCommand } from "@aws-sdk/client-cognito-identity-provider";
+import { Box, Button, Container, Link, Paper, TextField, Typography } from "@mui/material";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import {Box, TextField, Button, Typography, Container, Link} from "@mui/material";
-import {CognitoIdentityProviderClient, InitiateAuthCommand, AuthFlowType} from "@aws-sdk/client-cognito-identity-provider";
+import { setToken } from "../fetch/accessToken";
 import { authConfig } from "./authConfgure";
-import { setToken } from "../fetch/accessToken"; 
 
 const cognitoClient = new CognitoIdentityProviderClient({ region: authConfig.Region });
 
@@ -55,16 +55,17 @@ export default function Login() {
 
   return (
     <Container component="main" maxWidth="xs">
+      <Paper variant="elevation" sx={{padding: 3, pt: 0}}>
       <Box
         sx={{
-          marginTop: 8,
+          mt: '45%',
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
           textAlign: "center"
         }}
       >
-        <Typography component="h1" variant="h5" textAlign="center">
+        <Typography variant="h1" textAlign="center" style={{  fontFamily: "Roboto, sans-serif"}}>
           Log in
         </Typography>
         <Box component="form" sx={{ mt: 1 }}>
@@ -99,14 +100,15 @@ export default function Login() {
             Log In
           </Button>
           <Typography sx={{ textAlign: 'center' }}>
-          Don't have an account?   
+          Don't have an account?{" "}
           <Link href="#" variant="body2" onClick={() => navigate("/signup")}>
-            {"Sign Up"}
+            Sign Up
           </Link>
           </Typography>
          
         </Box>
       </Box>
+      </Paper>
     </Container>
   );
 }

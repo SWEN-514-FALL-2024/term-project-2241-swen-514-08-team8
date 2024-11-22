@@ -1,6 +1,6 @@
 import { CartItem } from '../components/checkout';
-import { Cart, ProductType } from '../components/products';
 import { SERVER_URL } from '../constants';
+import { Cart, ProductType } from '../types';
 
 // All endpoints provided by fakestoreapi.com
 export function useProducts() {
@@ -53,6 +53,22 @@ export function useCart(){
     });
   }
 
+  async function getNumberOfItemsInCart(): Promise<number> {
+    const data = await getData(SERVER_URL + '/cart/', {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${sessionStorage.getItem('idToken')}`,
+        'Content-Type': 'application/json',
+      },
+      body: null,
+    });
+
+    const json = data.json as { cartItems: CartItem[] };
+    console.log("Number of items in cart: " + json.cartItems.length);
+    console.log(json.cartItems.length)
+    return json.cartItems.filter(item => item.itemStatus === "Added").length;
+  }
+
   async function updateAddedCart(prodId : CartItem): Promise<RequestResult> { 
     return await getData(SERVER_URL + '/cart/', {
       method: 'PUT',
@@ -67,7 +83,8 @@ export function useCart(){
   return {
     addToCart,
     getCart,
-    updateAddedCart
+    updateAddedCart,
+    getNumberOfItemsInCart
   };
 }
 
