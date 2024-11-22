@@ -40,12 +40,15 @@ function Products() {
 
   useEffect(() => {
     async function load() {
+      setLoading(true);
       const res = await getProducts();
       if (res.success) {
         setProducts(res.json as ProductType[]);
         setFilteredProducts(res.json as ProductType[]);
+        setLoading(false);
       } else {
         setFailedRequest(true);
+        setLoading(false);
       }
     }
     load();
@@ -69,7 +72,7 @@ function Products() {
 
       setFilteredProducts(filtered);
       setLoading(false);
-    }, 500); // Simulate a delay for loading
+    }, 500); // Simulates delay for loading. (UX)
   };
 
   return (

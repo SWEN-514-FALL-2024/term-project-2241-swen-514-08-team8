@@ -27,10 +27,9 @@ export default function Home() {
 
   return (
     <CartCountProvider>
-      <Box>
-          <Header auth={true} />
-          <Outlet />
-      </Box>
+      <Header auth={true} />
+      <Box mt={10}/>
+      <Outlet />
     </CartCountProvider>
   );
 }

@@ -259,7 +259,8 @@ import { useCart, useProducts } from '../fetch/product';
                 <Box sx={{
                     width: '100%', 
                     border: 1,
-                    boxShadow:0
+                    boxShadow:0,
+                    bgcolor: 'white'
                 }}>
                     <Box>
                         <Typography variant="h5" textAlign={'left'} sx={CustomGridStyle}>

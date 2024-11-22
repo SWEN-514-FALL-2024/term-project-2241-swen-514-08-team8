@@ -24,8 +24,9 @@ export default function Header({ auth }: { auth: boolean }) {
   const badgeMargin = 1.5
 
   return (
+    <>
     <Box sx={{ flexGrow: 1 }}>
-      <AppBar position="static">
+      <AppBar position="fixed">
         <Toolbar>
           <ShoppingBag sx={{mr: 2}} fontSize='medium'/>
           <Link to='/home/products' style={{ textDecoration: 'none', color: 'inherit' }}>
@@ -85,5 +86,6 @@ export default function Header({ auth }: { auth: boolean }) {
         </Toolbar>
       </AppBar>
     </Box>
+    </>
   );
 }
