@@ -47,7 +47,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
       {children}
 
         {notification && (
-            <Snackbar
+          <Snackbar
             open={open}
             onClose={handleClose}
             anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
@@ -56,7 +56,6 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
               {notification.message}
             </Alert>
           </Snackbar>
-
         )}
     </NotificationContext.Provider>
   );

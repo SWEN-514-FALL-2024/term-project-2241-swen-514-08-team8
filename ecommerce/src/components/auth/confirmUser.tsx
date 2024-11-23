@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { useState } from "react";
 import { CognitoIdentityProviderClient, ConfirmSignUpCommand } from "@aws-sdk/client-cognito-identity-provider";
+import { Alert, Box, Button, Paper, Stack, TextField, Typography } from "@mui/material";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import {Box, TextField, Button, Typography, Container, Alert} from "@mui/material";
-import { authConfig } from "./authConfgure";
+import { authConfig } from "../authConfgure";
 
 const cognitoClient = new CognitoIdentityProviderClient({ region: authConfig.Region });
 
@@ -45,21 +45,14 @@ const ConfirmUser = () => {
     };
   
     return (
-      <Container component="main" maxWidth="xs">
-        <Box
-          sx={{
-            marginTop: 8,
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-          }}
-        >
-          <Typography component="h1" variant="h5">
-            Confirm Your Account
-          </Typography>
-          <Box component="form" onSubmit={(e) => e.preventDefault()} sx={{ mt: 3 }}>
+<Box display="flex" justifyContent="center" alignItems="center" height="90vh">
+      <Paper variant="elevation" sx={{ px: 3, borderRadius: '10%', height: 'fit-content', width: 'fit-content', pt: 1, pb: 3 }}>
+        <Typography variant="h3" textAlign="start" style={{ fontFamily: "Roboto, sans-serif" }} mt={1} className="theme-title-text">
+          Confirm Account
+        </Typography>
+        <Box component="form" width={'fit-content'} onSubmit={(e) => e.preventDefault()}>
+          <Stack width={'400px'} mt={2} gap={1}>
             <TextField
-              margin="normal"
               required
               fullWidth
               label="Username or Email"
@@ -68,7 +61,6 @@ const ConfirmUser = () => {
               onChange={(e) => setUsername(e.target.value)}
             />
             <TextField
-              margin="normal"
               required
               fullWidth
               label="Confirmation Code"
@@ -76,21 +68,22 @@ const ConfirmUser = () => {
               value={confirmationCode}
               onChange={(e) => setConfirmationCode(e.target.value)}
             />
-            <Button
-              type="button"
-              fullWidth
-              variant="contained"
-              color="primary"
-              onClick={handleConfirm}
-              sx={{ mt: 3, mb: 2 }}
-            >
-              Confirm Account
-            </Button>
-            {message && <Alert severity="success">{message}</Alert>}
-            {error && <Alert severity="error">{error}</Alert>}
-          </Box>
+          </Stack>
+          <Button
+            type="button"
+            fullWidth
+            variant="contained"
+            color="primary"
+            onClick={handleConfirm}
+            sx={{ mt: 3, mb: 2 }}
+          >
+            Confirm Account
+          </Button>
+          {message && <Alert severity="success">{message}</Alert>}
+          {error && <Alert severity="error">{error}</Alert>}
         </Box>
-      </Container>
+      </Paper>
+    </Box>
     );
   };
 
