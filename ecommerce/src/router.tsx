@@ -45,8 +45,8 @@ export const router = createBrowserRouter([
       {
         // Redirects the root page '/' to /products.
         index: true,
-        // element: <Navigate to="products" replace />,
-        element: <></>
+        element: <Navigate to="products" replace />,
+        // element: <></>
       },
       {
         path: "products",
