@@ -1,0 +1,8 @@
+.theme-title-text { 
+    font-family: "Roboto, sans-serif";
+    background: linear-gradient(120deg, rgb(0,0,200), pink);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    color: transparent;
+}
