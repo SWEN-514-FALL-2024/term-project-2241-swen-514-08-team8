@@ -1,5 +1,5 @@
 import { AccountCircle, Receipt, Search, ShoppingBag, ShoppingCart } from '@mui/icons-material';
-import { AppBar, Badge, Box, IconButton, Tab, Tabs, Toolbar, Typography } from '@mui/material';
+import { AppBar, Badge, Box, IconButton, Tab, Tabs, Toolbar, Typography, Menu, MenuItem } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useCartContext } from './providers/cart-count';
@@ -7,6 +7,7 @@ import { useCartContext } from './providers/cart-count';
 export default function Header({ auth }: { auth: boolean }) {
   const navigate = useNavigate();
   const location = useLocation();
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [page, setPage] = useState(location.pathname);
   const { getCartCount } = useCartContext();
   
@@ -19,6 +20,21 @@ export default function Header({ auth }: { auth: boolean }) {
   const handlePageChange = (_event: React.SyntheticEvent, newValue: string) => {
     setPage(newValue);
     navigate(newValue);
+  };
+
+  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleSignOut = () => {
+    console.log("User signed out");
+    setAnchorEl(null);
+    sessionStorage.clear();
+    window.location.href = "/login";
   };
 
   const badgeMargin = 1.5
@@ -79,8 +95,25 @@ export default function Header({ auth }: { auth: boolean }) {
               aria-controls="menu-appbar"
               aria-haspopup="true"
               color="inherit"
+              onClick={handleMenuOpen}
             >
               <AccountCircle />
+              <Menu
+                  id="menu-appbar"
+                  anchorEl={anchorEl}
+                  anchorOrigin={{
+                    vertical: 'top',
+                    horizontal: 'right',
+                  }}
+                  transformOrigin={{
+                    vertical: 'top',
+                    horizontal: 'right',
+                  }}
+                  open={Boolean(anchorEl)}
+                  onClose={handleMenuClose}
+                >
+                  <MenuItem onClick={handleSignOut}>Sign Out</MenuItem>
+                </Menu>
             </IconButton>
           )}
         </Toolbar>

@@ -25,13 +25,8 @@ const loginUser = async (email: string, password: string) =>  {
   try {
     const response = await cognitoClient.send(command);
     console.log("User logged in:", response);
-
-    sessionStorage.setItem(
-      "idToken",
-      response.AuthenticationResult?.IdToken || "",
-    );
     
-    return response.AuthenticationResult?.AccessToken;
+    return response.AuthenticationResult;
   } catch (error) {
     console.error("Error logging in user:", error);
     throw error;
@@ -50,14 +45,28 @@ export default function Login() {
     })),
   })
 
+
   const handleLogin = async () => {
     form.handleSubmit(async () => {
       try {
-        const accessToken = await loginUser(email, password);
-        if (accessToken){
-          setToken(accessToken);
+        const authenticationResult = await loginUser(email, password);
+        if (authenticationResult){
+          sessionStorage.setItem(
+            "idToken",
+            authenticationResult?.IdToken || "",
+          );
+          sessionStorage.setItem(
+            "accessToken",
+            authenticationResult?.AccessToken || "",
+          );
+          setToken(authenticationResult?.AccessToken || "");
+
           // alert("User logged in successfully!");
-          navigate("/home");
+          if(!!sessionStorage.getItem("accessToken")){
+            console.log("Navigated to home")
+            //Needed for session storage refresh (dont change to navigate)
+            window.location.href = "/home";
+          }
         }
         
       } catch (error) {

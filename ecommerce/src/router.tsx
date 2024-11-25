@@ -11,13 +11,18 @@ import Home from './components/home';
 import { Products } from "./components/products";
 import Transactions from './components/transactions';
 
+const isAuthenticated = () => {
+  const accessToken = sessionStorage.getItem("accessToken");
+  return !!accessToken;
+};
+
 export const router = createBrowserRouter([
   {
       index: true,
-      element: <Navigate to="/login" replace />,
+      element: isAuthenticated() ? <Home /> : <Navigate replace to="/login" />,
     }, {
       path: '/login',
-      element: <Login />
+      element: isAuthenticated() ? <Home /> : <Login />
     },{
       path: "/signup",
       element: <SignUp />,
@@ -40,25 +45,25 @@ export const router = createBrowserRouter([
       ],
     }, {
     path: '/home',
-    element: <Home />,
+    element: isAuthenticated() ? <Home /> : <Navigate replace to="/login" />,
     children: [
       {
         // Redirects the root page '/' to /products.
         index: true,
-        element: <Navigate to="products" replace />,
+        element: isAuthenticated() ? <Navigate to="products" replace /> : <Navigate replace to="/login" />,
         // element: <></>
       },
       {
         path: "products",
-        element: <Products />,
+        element: isAuthenticated() ? <Products /> : <Navigate replace to="/login" />,
       },
       {
         path: "checkout",
-        element: <Checkout />,
+        element: isAuthenticated() ? <Checkout /> : <Navigate replace to="/login" />,
       },
       {
         path: "transactions",
-        element: <Transactions />,
+        element: isAuthenticated() ? <Transactions /> : <Navigate replace to="/login" />,
       },
     ],
   },
