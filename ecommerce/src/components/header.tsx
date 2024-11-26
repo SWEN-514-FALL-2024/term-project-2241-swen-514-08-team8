@@ -1,5 +1,5 @@
-import { AccountCircle, Receipt, Search, ShoppingBag, ShoppingCart } from '@mui/icons-material';
-import { AppBar, Badge, Box, IconButton, Menu, MenuItem, Tab, Tabs, Toolbar, Typography } from '@mui/material';
+import { AccountCircle, AdminPanelSettings, Close, Logout, Receipt, Search, ShoppingBag, ShoppingCart } from '@mui/icons-material';
+import { AppBar, Badge, Box, IconButton, ListItemIcon, Menu, MenuItem, Tab, Tabs, Toolbar, Typography } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useCartContext } from './providers/cart-count';
@@ -106,15 +106,32 @@ export default function Header({ auth }: { auth: boolean }) {
                     horizontal: 'right',
                   }}
                   transformOrigin={{
-                    vertical: 'top',
+                    vertical: 'bottom',
                     horizontal: 'right',
                   }}
                   open={Boolean(anchorEl)}
                   onClose={handleMenuClose} // Add this line to close the menu when clicking outside
                   >
-                  { sessionStorage.getItem('isAdmin') === 'true' && <MenuItem onClick={() => navigate('/admin')}>Admin Panel</MenuItem>}
-                  <MenuItem onClick={handleSignOut}>Sign Out</MenuItem>
-                  <MenuItem onClick={handleMenuClose}>Close</MenuItem>
+                  { sessionStorage.getItem('isAdmin') === 'true' && (
+                    <MenuItem onClick={() => navigate('/admin')}>
+                      <ListItemIcon>
+                        <AdminPanelSettings />
+                      </ListItemIcon>
+                      Admin Panel
+                    </MenuItem>
+                  )}
+                  <MenuItem onClick={handleSignOut}>
+                    <ListItemIcon>
+                      <Logout />
+                    </ListItemIcon>
+                    Sign Out
+                  </MenuItem>
+                  <MenuItem onClick={handleMenuClose}>
+                    <ListItemIcon>
+                      <Close />
+                    </ListItemIcon>
+                    Close
+                  </MenuItem>
                 </Menu>
             </IconButton>
           )}

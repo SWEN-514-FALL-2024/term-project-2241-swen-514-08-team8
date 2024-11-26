@@ -159,6 +159,7 @@ import { useCartContext } from './providers/cart-count';
           updateAddedCart({itemId: itemId, ProductId: productId, quantity: quantity, transactionId: transactionId, itemStatus: "Purchased"} as CartItem)
         });
         await Promise.all(updatePromises);
+        await new Promise(resolve => setTimeout(resolve, 1000)); // wait a second for transactions to update before moving on.
         navigate('/home/transactions')
       } else {
         notify("Cart is empty", 'error')
