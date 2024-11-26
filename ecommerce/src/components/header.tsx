@@ -26,8 +26,9 @@ export default function Header({ auth }: { auth: boolean }) {
     setAnchorEl(event.currentTarget);
   };
 
-  const handleMenuClose = () => {
-    setAnchorEl(null);
+  const handleMenuClose = (event : React.MouseEvent<HTMLElement>) => {
+      event.stopPropagation();
+      setAnchorEl(null);
   };
 
   const handleSignOut = () => {
@@ -106,11 +107,11 @@ export default function Header({ auth }: { auth: boolean }) {
                     horizontal: 'right',
                   }}
                   transformOrigin={{
-                    vertical: 'bottom',
+                    vertical: 'top',
                     horizontal: 'right',
                   }}
                   open={Boolean(anchorEl)}
-                  onClose={handleMenuClose} // Add this line to close the menu when clicking outside
+                  onClose={handleMenuClose}
                   >
                   { sessionStorage.getItem('isAdmin') === 'true' && (
                     <MenuItem onClick={() => navigate('/admin')}>
