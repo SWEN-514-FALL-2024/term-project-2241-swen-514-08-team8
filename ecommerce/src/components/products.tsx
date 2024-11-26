@@ -4,17 +4,18 @@ import {
   Button,
   CircularProgress,
   FormControl,
+  Grid,
   InputLabel,
   MenuItem,
   Select,
   Stack,
   TextField,
-  Typography
+  Typography,
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import { v4 as uuidv4 } from 'uuid';
 import { useCart, useProducts } from '../fetch/product';
-import { Cart, ProductType } from '../types';
+import { Cart, ProductType } from "../types";
 import Product from "./product";
 import { useNotification } from "./providers/alerts";
 import { useCartContext } from "./providers/cart-count";
@@ -31,24 +32,21 @@ function Products() {
   const { addToCart } = useCart();
   const { refreshCartCount } = useCartContext();
 
-  const handleAddToCart = async (productId: number) => {
+  const handleAddToCart = async (productId: number, quantity: number) => {
     const itemId = uuidv4();
-    addToCart({id: itemId, productId: productId, quantity: 1, transactionId: "0", itemStatus: "Added"} as Cart)
+    addToCart({ id: itemId, productId: productId, quantity: quantity, transactionId: "0", itemStatus: "Added" } as Cart);
     notify("Item added to cart", "success");
-    await refreshCartCount()
+    await refreshCartCount();
   };
 
   useEffect(() => {
     async function load() {
-      setLoading(true);
       const res = await getProducts();
       if (res.success) {
         setProducts(res.json as ProductType[]);
         setFilteredProducts(res.json as ProductType[]);
-        setLoading(false);
       } else {
         setFailedRequest(true);
-        setLoading(false);
       }
     }
     load();
@@ -72,19 +70,20 @@ function Products() {
 
       setFilteredProducts(filtered);
       setLoading(false);
-    }, 500); // Simulates delay for loading. (UX)
+    }, 500); // Simulate a delay for loading
   };
 
   return (
-    <Stack direction={"column"} spacing={2}>
+    <Stack direction={"column"} spacing={2} alignItems={'center'} justifyItems={'center'} justifyContent={'center'} alignContent={'center'}>
       <Typography variant="h1" textAlign={"center"}>
         Product Catalog
       </Typography>
-      <Box display="flex" justifyContent="center" gap={2}>
+      <Box display="flex" justifyContent="center" gap={2} sx={{ backgroundColor: 'white', padding: 2, borderRadius: 1 }}>        
         <TextField
           label="Search"
           variant="outlined"
           value={searchTerm}
+          slotProps={{ inputLabel: { shrink: true } }}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
         <FormControl variant="outlined">
@@ -110,15 +109,7 @@ function Products() {
           <CircularProgress size={40} />
         </Box>
       ) : (
-        <Box
-          flexWrap={"wrap"}
-          display={"flex"}
-          flexDirection={"row"}
-          gap={3}
-          mx={"auto"}
-          width={"fit-content"}
-          justifyContent={"center"}
-        >
+        <Grid container spacing={3} justifyContent="center" gap={3}>
           {failedRequest && (
             <Typography variant="h3">
               Failed to reach server. Make sure terraform is running!
@@ -127,9 +118,11 @@ function Products() {
           {filteredProducts
             .sort((p1, p2) => p1.category.localeCompare(p2.category)) // sort by category
             .map((product, i) => (
-              <Product key={i} product={product} handleAddToCart={handleAddToCart}/>
+                <Grid xs={12} sm={6} md={4} lg={3} key={i}>
+                  <Product product={product} handleAddToCart={handleAddToCart} />
+              </Grid>
             ))}
-        </Box>
+        </Grid>
       )}
     </Stack>
   );

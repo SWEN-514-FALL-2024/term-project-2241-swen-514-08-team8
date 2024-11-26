@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import {
   Box,
   Button,
@@ -6,6 +7,7 @@ import {
   CardMedia,
   CircularProgress,
   Modal,
+  Paper,
   Stack,
   SxProps,
   Typography,
@@ -14,6 +16,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
 import { useCart, useProducts } from '../fetch/product';
+import { useNotification } from './providers/alerts';
 
   
   export type CheckoutItem = {
@@ -49,9 +52,9 @@ import { useCart, useProducts } from '../fetch/product';
   const CustomGridStyle: SxProps = {
     border: 0,
     borderBottom: 1, 
-    borderborderRadius: 0, 
+    borderRadius: 0, 
     borderStyle: 'dashed', 
-    boxShadow:0,
+    boxShadow: 0,
     mx: 0
   }
   
@@ -144,6 +147,7 @@ import { useCart, useProducts } from '../fetch/product';
     const [products, setProducts] = useState<CheckoutItem[]>([]);
     const [failedRequest, setFailedRequest] = useState<boolean>(false);
     const [empty, setEmpty] = useState<boolean>(false);
+    const { notify } = useNotification();
 
     const placeholderUser: User = {id: 4, username: "John Placeholder", email: "examp1e@mail.gov"}
 
@@ -171,6 +175,8 @@ import { useCart, useProducts } from '../fetch/product';
         });
         await Promise.all(updatePromises);
         navigate('/home/transactions')
+      } else {
+        notify("Cart is empty", 'error')
       }
     };
   
@@ -209,82 +215,63 @@ import { useCart, useProducts } from '../fetch/product';
       load();
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
+
+    const subtotal = products.length !== 0
+      ? products.map((product) => product.price * product.amountOrdered)
+        .reduce((total, price) => total + price, 0).toFixed(2)
+      : 0;
   
     return (
-      <Stack direction={'column'}>
-        <Typography variant="h1" textAlign={'center'}>
-          Checkout
-        </Typography>
-        <Box
-        sx={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(7, 1fr)',
-            gap: 1,
-            gridTemplateRows: 'auto',
-            gridTemplateAreas: `"main main main . sidebar sidebar ."`,
-        }}
-        >  
-            <Box sx={{ gridArea: 'main'}}>
-                <Typography variant="h2" textAlign={'center'} width={1/4}>
-                Cart
-                </Typography>
-                {products.length === 0 && !empty && (
-                <CircularProgress size={40} sx={{ mx: 'auto', my: 'auto' }} />
-                )}
-                {products.length === 0 && empty && (
-                <Typography variant='h5'>Cart is empty</Typography>)
-                }
-                <Box
-                    display={'flex'}
-                    flexDirection={'column'}
-                    gap={1}
-                    justifyContent={'center'}
-                    sx={{border: 1}}
-                >
-                {failedRequest && (
-                    <Typography variant='h3'>Failed to reach server. Make sure terraform is running!</Typography>)
-                    }
-                {products
-                    .sort((p1, p2) => p1.category.localeCompare(p2.category)) // sort by category
-                    .map((product, i) => (
-                    <CheckoutItem key={i} checkoutItem={product} removeItem={removeItem} />
-                    ))}
-                </Box>
-            </Box>
-            {/* Personal Info */}
-            <Box flexWrap={'wrap'} sx={{ gridArea: 'sidebar'}}>
-                <Typography variant="h2" textAlign={'center'}>
-                    Personal Info
-                </Typography>
-                <Box sx={{
-                    width: '100%', 
-                    border: 1,
-                    boxShadow:0,
-                    bgcolor: 'white'
-                }}>
-                    <Box>
-                        <Typography variant="h5" textAlign={'left'} sx={CustomGridStyle}>
-                            Name: {placeholderUser.username}
-                        </Typography>
-
-                        <Typography variant="h5" textAlign={'left'} sx={CustomGridStyle}>
-                            Email: {placeholderUser.email}
-                        </Typography>
-                        
-                        <Typography variant="h5" textAlign={'left'} sx={{...CustomGridStyle, borderBottom: 0}}>
-                            Total Price: ${products.length !== 0 && products
-                              .map((product) => product.price * product.amountOrdered) //Could cause issue if product.amountOrdered = 0
-                              .reduce((total, price) => total+price, 0).toFixed(2)
-                            }
-                        </Typography>
-                    </Box>
-                </Box>
-                <Button onClick={() => handlePurchase()} variant="contained" color="primary" sx={{mt: 1}}>
-                    Purchase
-                </Button>
-            </Box>
-        </Box>
+      <Stack direction={'column'} alignItems={'center'} gap={2}>
+      <Typography variant="h1" textAlign={'center'}>
+        Checkout
+      </Typography>
+      <Stack direction={'row'} spacing={2} justifyContent={'center'} sx={{ width: '100%' }} gap={10}>
+        <Stack direction={'column'} sx={{ flex: 2, maxWidth: '600px' }}>
+          <Typography variant="h2" textAlign={'center'}>
+            Cart
+          </Typography>
+          <Paper sx={{ width: '100%', borderRadius: 2, p: 2, mt: 2, minHeight: '300px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+            {products.length === 0 && !empty && <CircularProgress size={40} sx={{ mx: 'auto', my: 'auto' }} />}
+            {products.length === 0 && empty && <Typography variant="h5" textAlign="center">Cart is empty</Typography>}
+            <Stack direction={'column'} gap={1} justifyContent={'center'}>
+              {failedRequest && <Typography variant="h3">Failed to reach server. Make sure terraform is running!</Typography>}
+              {products
+                .sort((p1, p2) => p1.category.localeCompare(p2.category)) // sort by category
+                .map((product, i) => (
+                  <CheckoutItem key={i} checkoutItem={product} removeItem={removeItem} />
+                ))}
+            </Stack>
+          </Paper>
+        </Stack>
+        <Stack direction={'column'} sx={{ flex: 1, maxWidth: '400px' }}>
+          <Typography variant="h2" textAlign={'center'}>
+            Receipt
+          </Typography>
+          <Paper sx={{ width: '100%', borderRadius: 2, p: 2, mt: 2 }}>
+            <Stack spacing={2}>
+              <Typography variant="h5" textAlign={'left'}>
+                Email: {sessionStorage.getItem('email')}
+              </Typography>
+              <Box>
+                {products.map((product) => (
+                  <Typography key={product.ProductId} variant="body1" textAlign={'left'}>
+                    - {product.amountOrdered}x {product.title}
+                  </Typography>
+                ))}
+              </Box>
+              <Typography variant="h5" textAlign={'left'} sx={{ borderBottom: 0 }}>
+                Subtotal: ${subtotal}
+              </Typography>
+              <Button variant="contained" color="primary" fullWidth onClick={handlePurchase}>
+                Purchase
+              </Button>
+            </Stack>
+          </Paper>
+        </Stack>
       </Stack>
+    </Stack>
     );
   }
+
   

@@ -2,13 +2,14 @@
 import { AuthFlowType, CognitoIdentityProviderClient, InitiateAuthCommand } from "@aws-sdk/client-cognito-identity-provider";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Box, Button, Link, Paper, Stack, Typography } from "@mui/material";
+import { jwtDecode } from "jwt-decode";
 import { useState } from "react";
 import { FormContainer, TextFieldElement, useForm } from "react-hook-form-mui";
 import { useNavigate } from "react-router-dom";
 import { z } from "zod";
 import { setToken } from "../../fetch/accessToken";
-import { authConfig } from "../authConfgure";
 import '../../text-gradient.css';
+import { authConfig } from "../authConfgure";
 
 const cognitoClient = new CognitoIdentityProviderClient({ region: authConfig.Region });
 
@@ -25,7 +26,7 @@ const loginUser = async (email: string, password: string) =>  {
   try {
     const response = await cognitoClient.send(command);
     console.log("User logged in:", response);
-    
+    console.log(response)
     return response.AuthenticationResult;
   } catch (error) {
     console.error("Error logging in user:", error);
@@ -51,6 +52,18 @@ export default function Login() {
       try {
         const authenticationResult = await loginUser(email, password);
         if (authenticationResult){
+
+
+          const decodedToken: {
+            email: string,
+            'custom:admin': string
+          } = jwtDecode(authenticationResult.IdToken!);
+
+          const email = decodedToken?.email;
+          const isAdmin = decodedToken['custom:admin'] === 'true';
+          sessionStorage.setItem('email', email);
+          sessionStorage.setItem('isAdmin', isAdmin+"");
+
           sessionStorage.setItem(
             "idToken",
             authenticationResult?.IdToken || "",
@@ -59,9 +72,11 @@ export default function Login() {
             "accessToken",
             authenticationResult?.AccessToken || "",
           );
+
           setToken(authenticationResult?.AccessToken || "");
 
           // alert("User logged in successfully!");
+          // eslint-disable-next-line no-extra-boolean-cast
           if(!!sessionStorage.getItem("accessToken")){
             console.log("Navigated to home")
             //Needed for session storage refresh (dont change to navigate)

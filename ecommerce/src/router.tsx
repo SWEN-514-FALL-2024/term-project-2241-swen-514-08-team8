@@ -13,16 +13,19 @@ import Transactions from './components/transactions';
 
 const isAuthenticated = () => {
   const accessToken = sessionStorage.getItem("accessToken");
+  if (accessToken === "") {
+    return false;
+  }
   return !!accessToken;
 };
 
 export const router = createBrowserRouter([
   {
       index: true,
-      element: isAuthenticated() ? <Home /> : <Navigate replace to="/login" />,
+      element: <Navigate replace to="/login" />,
     }, {
       path: '/login',
-      element: isAuthenticated() ? <Home /> : <Login />
+      element: isAuthenticated() ? <Navigate to="/home/products" /> : <Login />
     },{
       path: "/signup",
       element: <SignUp />,

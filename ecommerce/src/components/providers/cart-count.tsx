@@ -2,7 +2,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useCart } from '../../fetch/product';
 
 interface CartContextType {
-    refreshCartCount: () => void;
+    refreshCartCount: () => Promise<void>;
     getCartCount: () => number;
 }
 

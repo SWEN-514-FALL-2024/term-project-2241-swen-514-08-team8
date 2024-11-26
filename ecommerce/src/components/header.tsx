@@ -1,5 +1,5 @@
 import { AccountCircle, Receipt, Search, ShoppingBag, ShoppingCart } from '@mui/icons-material';
-import { AppBar, Badge, Box, IconButton, Tab, Tabs, Toolbar, Typography, Menu, MenuItem } from '@mui/material';
+import { AppBar, Badge, Box, IconButton, Menu, MenuItem, Tab, Tabs, Toolbar, Typography } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useCartContext } from './providers/cart-count';
@@ -110,9 +110,11 @@ export default function Header({ auth }: { auth: boolean }) {
                     horizontal: 'right',
                   }}
                   open={Boolean(anchorEl)}
-                  onClose={handleMenuClose}
-                >
+                  onClose={handleMenuClose} // Add this line to close the menu when clicking outside
+                  >
+                  { sessionStorage.getItem('isAdmin') === 'true' && <MenuItem onClick={() => navigate('/admin')}>Admin Panel</MenuItem>}
                   <MenuItem onClick={handleSignOut}>Sign Out</MenuItem>
+                  <MenuItem onClick={handleMenuClose}>Close</MenuItem>
                 </Menu>
             </IconButton>
           )}
