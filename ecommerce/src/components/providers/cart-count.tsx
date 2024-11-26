@@ -21,6 +21,7 @@ export const CartCountProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     }, []);
 
     async function refreshCartCount()  {
+        await new Promise((resolve) => setTimeout(resolve, 1000));
         const data = await getNumberOfItemsInCart();
         console.log("Updating context");
         setCartItemCount(data);
