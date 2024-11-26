@@ -1,6 +1,6 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
+ 
 import { Add, ShoppingCart } from "@mui/icons-material";
-import { Box, Button, ButtonBase, Card, CardActions, CardMedia, Chip, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, InputAdornment, Rating, TextField, Typography } from "@mui/material";
+import { Box, Button, ButtonBase, Card, CardActions, CardMedia, Chip, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, InputAdornment, Modal, Rating, TextField, Typography } from "@mui/material";
 import { useState } from "react";
 import { ProductType } from "../types";
 
@@ -95,6 +95,33 @@ export default function Product({ product, handleAddToCart }: { product: Product
           </CardActions>
         </Card>
       </ButtonBase>
+      <Modal open={isOpen}>
+        <Box
+          sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: "fit-content",
+            maxWidth: 1000,
+            minWidth: 300,
+            bgcolor: "white",
+            border: "2px solid #000",
+            boxShadow: 24,
+            p: 4,
+          }}
+        >
+          <Typography variant="h3">{product.title}</Typography>
+          <Box display={"inline-block"}>
+            <Typography variant="body1">{product.description}</Typography>
+          </Box>
+          <Box display={"flex"} width={"100%"} justifyContent={"end"}>
+            <Button onClick={close} variant="contained" color="error">
+              Close
+            </Button>
+          </Box>
+        </Box>
+      </Modal>
       <Dialog open={dialogOpen} onClose={handleDialogClose}>
         <DialogTitle>Add to Cart</DialogTitle>
         <DialogContent>

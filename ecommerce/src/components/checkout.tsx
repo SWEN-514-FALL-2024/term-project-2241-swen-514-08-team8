@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
+ 
 import {
   Box,
   Button,
@@ -9,14 +9,14 @@ import {
   Modal,
   Paper,
   Stack,
-  SxProps,
-  Typography,
+  Typography
 } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
 import { useCart, useProducts } from '../fetch/product';
 import { useNotification } from './providers/alerts';
+import { useCartContext } from './providers/cart-count';
 
   
   export type CheckoutItem = {
@@ -43,21 +43,6 @@ import { useNotification } from './providers/alerts';
     cartItems: CartItem[];
   };
 
-  export type User = {
-    id: number;
-    username: string;
-    email: string;
-  };
-
-  const CustomGridStyle: SxProps = {
-    border: 0,
-    borderBottom: 1, 
-    borderRadius: 0, 
-    borderStyle: 'dashed', 
-    boxShadow: 0,
-    mx: 0
-  }
-  
   function CheckoutItem({ checkoutItem, removeItem }: { checkoutItem: CheckoutItem, removeItem: (itemId: string, productId: number) => void }) {
     const [isOpen, setOpen] = useState(false);
     const close = () => setOpen(false);
@@ -148,8 +133,7 @@ import { useNotification } from './providers/alerts';
     const [failedRequest, setFailedRequest] = useState<boolean>(false);
     const [empty, setEmpty] = useState<boolean>(false);
     const { notify } = useNotification();
-
-    const placeholderUser: User = {id: 4, username: "John Placeholder", email: "examp1e@mail.gov"}
+    const {refreshCartCount} = useCartContext();
 
     const removeItem = (itemId: string, productId: number) => {
       updateAddedCart({itemId: itemId, ProductId: productId, quantity: 0, transactionId: "0", itemStatus: "Removed"} as CartItem)
@@ -161,6 +145,7 @@ import { useNotification } from './providers/alerts';
       } else {
         setEmpty(false);
       }
+      refreshCartCount();
     }
 
     const handlePurchase = async () => {
@@ -178,6 +163,7 @@ import { useNotification } from './providers/alerts';
       } else {
         notify("Cart is empty", 'error')
       }
+      refreshCartCount();
     };
   
     useEffect(() => {
@@ -231,7 +217,7 @@ import { useNotification } from './providers/alerts';
           <Typography variant="h2" textAlign={'center'}>
             Cart
           </Typography>
-          <Paper sx={{ width: '100%', borderRadius: 2, p: 2, mt: 2, minHeight: '300px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+          <Paper sx={{ width: '100%', borderRadius: 2, p: 2, mt: 2, minHeight: '200px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
             {products.length === 0 && !empty && <CircularProgress size={40} sx={{ mx: 'auto', my: 'auto' }} />}
             {products.length === 0 && empty && <Typography variant="h5" textAlign="center">Cart is empty</Typography>}
             <Stack direction={'column'} gap={1} justifyContent={'center'}>

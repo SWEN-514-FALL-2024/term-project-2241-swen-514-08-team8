@@ -81,7 +81,7 @@ import { useCart, useProducts } from '../fetch/product';
   export default function Transactions() {
     const { getCart } = useCart();
     const { getProductById } = useProducts();
-    const [transactions, setTransactions] = useState<Transaction[]>([]);
+    const [transactions, setTransactions] = useState<Transaction[] | null>(null);
     const [failedRequest, setFailedRequest] = useState<boolean>(false);
 
     useEffect(() => {
@@ -133,7 +133,7 @@ import { useCart, useProducts } from '../fetch/product';
     }, []);
   
     return (
-<Stack direction={'column'} alignItems={'center'} justifyContent={'center'} spacing={2}>
+    <Stack direction={'column'} alignItems={'center'} justifyContent={'center'} spacing={2}>
       <Typography variant="h1" textAlign={'center'}>
         Transaction History
       </Typography>
@@ -145,16 +145,21 @@ import { useCart, useProducts } from '../fetch/product';
         sx={{ width: '100%' }}
       >
         <Paper sx={{ elevation: 0, padding: 2, minWidth: '300px', width: 'fit-content', margin: 'auto' }}>
-          {transactions.length === 0 && (
+          {transactions === null && (
             <Box display="flex" justifyContent="center" alignItems="center" height="100px">
               <CircularProgress size={40} />
+            </Box>
+          )}
+          {transactions?.length === 0 && !failedRequest && (
+            <Box display="flex" justifyContent="center" alignItems="center" height="100px">
+              <Typography variant='h3'>No transactions found</Typography>
             </Box>
           )}
           {failedRequest && (
             <Typography variant='h3'>Failed to reach server. Make sure terraform is running!</Typography>
           )}
           <Stack spacing={2}>
-            {transactions.map((transaction, i) => (
+            {transactions?.map((transaction, i) => (
               <Transaction key={i} transaction={transaction} />
             ))}
           </Stack>
