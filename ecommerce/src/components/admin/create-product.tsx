@@ -1,6 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Cancel, Create } from "@mui/icons-material";
-import { Box, Button, InputAdornment, Stack, Typography } from "@mui/material";
+import { Box, Button, InputAdornment, Paper, Stack, Typography } from "@mui/material";
 import { useState } from "react";
 import {
   FormContainer,
@@ -82,7 +82,8 @@ export default function CreateProduct() {
   );
 
   return (
-    <Box mx={"auto"} width={"fit-content"}>
+    <Paper sx={{width: 'fit-content', mx: 'auto'}}>
+    <Box mx={"auto"} width={"fit-content"} p={3} >
       <Typography variant="h2" textAlign={"center"}>
         Create a Product
       </Typography>
@@ -98,7 +99,7 @@ export default function CreateProduct() {
               name="Description"
               label="Description"
               slotProps={{ inputLabel: { shrink: true } }}
-            />{" "}
+            />
             <SelectElement
               name="Category"
               label="Category"
@@ -196,5 +197,7 @@ export default function CreateProduct() {
         </Box>
       </Stack>
     </Box>
+    </Paper>
+
   );
 }
