@@ -48,6 +48,9 @@ import { useCartContext } from './providers/cart-count';
     const close = () => setOpen(false);
     const open = () => setOpen(true);
   
+
+    const price = checkoutItem.price === 0 ? 0.00 : checkoutItem.price;
+
     return (
       <>
         <Card sx={{ width: '100%'}}>
@@ -67,7 +70,7 @@ import { useCartContext } from './providers/cart-count';
           <CardActions>
 
           <Typography overflow={'ellipsis'} variant="h6" p={2} lineHeight={.5}>
-              ${checkoutItem.price.toFixed(2)}
+              ${price}
             </Typography>
 
             <Box
@@ -152,11 +155,11 @@ import { useCartContext } from './providers/cart-count';
       if(!empty){
         const transactionId = uuidv4();
 
-        const updatePromises = products.map((product) => {
+        const updatePromises = products.map(async (product) => {
           const itemId = product.itemId;
           const productId = product.ProductId;
           const quantity = product.amountOrdered;
-          updateAddedCart({itemId: itemId, ProductId: productId, quantity: quantity, transactionId: transactionId, itemStatus: "Purchased"} as CartItem)
+          await updateAddedCart({itemId: itemId, ProductId: productId, quantity: quantity, transactionId: transactionId, itemStatus: "Purchased"} as CartItem)
         });
         await Promise.all(updatePromises);
         await new Promise(resolve => setTimeout(resolve, 1000)); // wait a second for transactions to update before moving on.
@@ -224,7 +227,7 @@ import { useCartContext } from './providers/cart-count';
             <Stack direction={'column'} gap={1} justifyContent={'center'}>
               {failedRequest && <Typography variant="h3">Failed to reach server. Make sure terraform is running!</Typography>}
               {products
-                .sort((p1, p2) => p1.category.localeCompare(p2.category)) // sort by category
+                // .sort((p1, p2) => p1.category.localeCompare(p2.category)) // sort by category
                 .map((product, i) => (
                   <CheckoutItem key={i} checkoutItem={product} removeItem={removeItem} />
                 ))}

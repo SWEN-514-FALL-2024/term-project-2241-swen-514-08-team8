@@ -98,20 +98,42 @@ resource "aws_api_gateway_rest_api" "ecommerce-api" {
       "/products" = {
         options = {
           x-amazon-apigateway-integration = {
-            type                 = "MOCK"
-            requestTemplates     = { "application/json" = "{\"statusCode\": 200}" }
-            passthroughBehavior  = "WHEN_NO_MATCH"
+            type = "MOCK"
+            requestTemplates = {
+              "application/json" = "{\"statusCode\": 200}"
+            }
+            responses = {
+              "default" = {
+                statusCode = "200"
+                responseParameters = {
+                  "method.response.header.Access-Control-Allow-Headers" = "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+                  "method.response.header.Access-Control-Allow-Methods" = "'GET,POST,OPTIONS'"
+                  "method.response.header.Access-Control-Allow-Origin"  = "'*'"
+                }
+                responseTemplates = {
+                  "application/json" = ""
+                }
+              }
+            }
           }
           responses = {
             "200" = {
-              description = "Default response for CORS preflight requests."
               headers = {
-                "Access-Control-Allow-Origin" = { schema = { type = "string" } }
-                "Access-Control-Allow-Methods" = { schema = { type = "string" } }
-                "Access-Control-Allow-Headers" = { schema = { type = "string" } }
-              }
-              content = {
-                "application/json" = { schema = { type = "object" } }
+                "Access-Control-Allow-Headers" = {
+                  schema = {
+                    type = "string"
+                  }
+                }
+                "Access-Control-Allow-Methods" = {
+                  schema = {
+                    type = "string"
+                  }
+                }
+                "Access-Control-Allow-Origin" = {
+                  schema = {
+                    type = "string"
+                  }
+                }
               }
             }
           }
@@ -123,33 +145,14 @@ resource "aws_api_gateway_rest_api" "ecommerce-api" {
             uri                  = "${aws_lambda_function.get-products.invoke_arn}"
             payloadFormatVersion = "2.0"
           }
-          # responses = {
-          #   "200" = {
-          #     headers = {
-          #       "Access-Control-Allow-Origin" = { schema = { type = "string" } }
-          #       "Access-Control-Allow-Methods" = { schema = { type = "string" } }
-          #     }
-          #   }
-          # }
-          # parameters = [
-          #   {
-          #     name     = "limit"
-          #     in       = "query"
-          #     required = false
-          #     schema = {
-          #       type = "integer"
-          #     }
-          #   },
-          #   {
-          #     name     = "sort"
-          #     in       = "query"
-          #     required = false
-          #     schema = {
-          #       type = "string"
-          #       enum = ["asc", "desc"]
-          #     }
-          #   }
-          # ]
+          responses = {
+            "200" = {
+              headers = {
+                "Access-Control-Allow-Origin" = { schema = { type = "string" } }
+                "Access-Control-Allow-Methods" = { schema = { type = "string" } }
+              }
+            }
+          }
         }
         post = {
           x-amazon-apigateway-integration = {
@@ -181,16 +184,10 @@ resource "aws_api_gateway_rest_api" "ecommerce-api" {
       "/products/{id}" = {
         get = {
           x-amazon-apigateway-integration = {
-            httpMethod           = "GET"
-            payloadFormatVersion = "1.0"
-            type                 = "HTTP_PROXY"
-            uri                  = "https://fakestoreapi.com/products/{id}"
-            requestParameters = {
-              "integration.request.path.id" = "method.request.path.id"
-            }
-            passthroughBehavior = "WHEN_NO_MATCH"
-            connectionType      = "INTERNET"
-            contentHandling     = "CONVERT_TO_TEXT"
+            type                 = "AWS_PROXY"
+            httpMethod           = "POST"
+            uri                  = "${aws_lambda_function.get_product.invoke_arn}"
+            payloadFormatVersion = "2.0"
           }
           responses = {
             "200" = {
@@ -231,13 +228,13 @@ resource "aws_api_gateway_method" "cart_options" {
   http_method   = "OPTIONS"
   authorization = "NONE"
 
-  depends_on = [aws_api_gateway_resource.cart ]
+  depends_on = [aws_api_gateway_resource.cart]
 }
 
 resource "aws_api_gateway_model" "cart_response_model" {
-  rest_api_id = aws_api_gateway_rest_api.ecommerce-api.id
+  rest_api_id  = aws_api_gateway_rest_api.ecommerce-api.id
   content_type = "application/json"
-  name = "CartResponseModel"
+  name         = "CartResponseModel"
 
   schema = <<EOF
   {
@@ -253,7 +250,7 @@ resource "aws_api_gateway_method_response" "cart_options_response" {
   rest_api_id = aws_api_gateway_rest_api.ecommerce-api.id
   resource_id = aws_api_gateway_resource.cart.id
   http_method = aws_api_gateway_method.cart_options.http_method
-  status_code = 200 
+  status_code = 200
 
   response_models = {
     "application/json" = aws_api_gateway_model.cart_response_model.name
@@ -261,20 +258,20 @@ resource "aws_api_gateway_method_response" "cart_options_response" {
 
   response_parameters = {
     "method.response.header.Access-Control-Allow-Credentials" = true,
-    "method.response.header.Access-Control-Allow-Headers" = true,
-    "method.response.header.Access-Control-Allow-Methods" = true,
-    "method.response.header.Access-Control-Allow-Origin"  = true,
+    "method.response.header.Access-Control-Allow-Headers"     = true,
+    "method.response.header.Access-Control-Allow-Methods"     = true,
+    "method.response.header.Access-Control-Allow-Origin"      = true,
   }
 
   depends_on = [aws_api_gateway_method.cart_options, aws_api_gateway_model.cart_response_model]
 }
 
 resource "aws_api_gateway_integration" "cart_options_integration" {
-  rest_api_id             = aws_api_gateway_rest_api.ecommerce-api.id
-  resource_id             = aws_api_gateway_resource.cart.id
-  http_method             = aws_api_gateway_method.cart_options.http_method
+  rest_api_id = aws_api_gateway_rest_api.ecommerce-api.id
+  resource_id = aws_api_gateway_resource.cart.id
+  http_method = aws_api_gateway_method.cart_options.http_method
 
-  type                    = "MOCK"
+  type = "MOCK"
 
   request_templates = {
     "application/json" = "{ \"statusCode\": 200 }"
@@ -282,6 +279,7 @@ resource "aws_api_gateway_integration" "cart_options_integration" {
 
   depends_on = [aws_api_gateway_method.cart_options]
 }
+
 
 resource "aws_api_gateway_integration_response" "cart_options_integration_response" {
   rest_api_id = aws_api_gateway_rest_api.ecommerce-api.id
@@ -291,9 +289,9 @@ resource "aws_api_gateway_integration_response" "cart_options_integration_respon
 
   response_parameters = {
     "method.response.header.Access-Control-Allow-Credentials" = "'true'",
-    "method.response.header.Access-Control-Allow-Origin"  = "'*'",
-    "method.response.header.Access-Control-Allow-Headers" = "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'" ,
-    "method.response.header.Access-Control-Allow-Methods" = "'OPTIONS,GET,POST,PUT'",
+    "method.response.header.Access-Control-Allow-Origin"      = "'*'",
+    "method.response.header.Access-Control-Allow-Headers"     = "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'",
+    "method.response.header.Access-Control-Allow-Methods"     = "'OPTIONS,GET,POST,PUT'",
   }
 
   depends_on = [aws_api_gateway_method_response.cart_options_response]
@@ -315,7 +313,7 @@ resource "aws_api_gateway_method_response" "cart_post_method_response" {
   rest_api_id = aws_api_gateway_rest_api.ecommerce-api.id
   resource_id = aws_api_gateway_resource.cart.id
   http_method = aws_api_gateway_method.cart_post.http_method
-  status_code = 200 
+  status_code = 200
 
   response_parameters = {
     "method.response.header.Access-Control-Allow-Origin" = true,
@@ -332,7 +330,7 @@ resource "aws_api_gateway_integration" "cart_post_integration" {
   type                    = "AWS_PROXY"
   uri                     = aws_lambda_function.add_to_cart_lambda.invoke_arn
 
-  depends_on = [ aws_api_gateway_method.cart_post]
+  depends_on = [aws_api_gateway_method.cart_post]
 }
 
 //*** Cart GET ***\\
@@ -351,7 +349,7 @@ resource "aws_api_gateway_method_response" "cart_get_method_response" {
   rest_api_id = aws_api_gateway_rest_api.ecommerce-api.id
   resource_id = aws_api_gateway_resource.cart.id
   http_method = aws_api_gateway_method.cart_get.http_method
-  status_code = 200 
+  status_code = 200
 
   response_parameters = {
     "method.response.header.Access-Control-Allow-Origin" = true,
@@ -368,7 +366,7 @@ resource "aws_api_gateway_integration" "cart_get_integration" {
   type                    = "AWS_PROXY"
   uri                     = aws_lambda_function.get_cart_lambda.invoke_arn
 
-  depends_on = [ aws_api_gateway_method.cart_get]
+  depends_on = [aws_api_gateway_method.cart_get]
 }
 
 //*** Cart PUT ***\\
@@ -387,7 +385,7 @@ resource "aws_api_gateway_method_response" "cart_put_method_response" {
   rest_api_id = aws_api_gateway_rest_api.ecommerce-api.id
   resource_id = aws_api_gateway_resource.cart.id
   http_method = aws_api_gateway_method.cart_put.http_method
-  status_code = 200 
+  status_code = 200
 
   response_parameters = {
     "method.response.header.Access-Control-Allow-Origin" = true,
@@ -404,7 +402,7 @@ resource "aws_api_gateway_integration" "cart_put_integration" {
   type                    = "AWS_PROXY"
   uri                     = aws_lambda_function.update_added_cart_lambda.invoke_arn
 
-  depends_on = [ aws_api_gateway_method.cart_put]
+  depends_on = [aws_api_gateway_method.cart_put]
 }
 
 //*** Cognito and Final Setup ***\\
@@ -433,6 +431,6 @@ resource "aws_api_gateway_deployment" "ecommerce-api" {
 resource "aws_api_gateway_stage" "ecommerce-api-stage" {
   deployment_id = aws_api_gateway_deployment.ecommerce-api.id
   rest_api_id   = aws_api_gateway_rest_api.ecommerce-api.id
-  
-  stage_name    = "ecommerce-api-stage"
+
+  stage_name = "ecommerce-api-stage"
 }

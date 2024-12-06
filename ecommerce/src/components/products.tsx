@@ -109,7 +109,7 @@ function Products() {
           <CircularProgress size={40} />
         </Box>
       ) : (
-        <Grid container spacing={3} justifyContent="center" gap={3}>
+        <Grid container spacing={3} justifyContent="center" gap={4}>
           {failedRequest && (
             <Typography variant="h3">
               Failed to reach server. Make sure terraform is running!

@@ -2,6 +2,7 @@ import json
 import boto3
 import boto3.dynamodb;
 from decimal import Decimal
+from random import randint
 
 dynamodb = boto3.resource('dynamodb')
 client = boto3.client('dynamodb')
@@ -39,27 +40,62 @@ def get_products(event, context):
             'body': json.dumps({'error': str(e)})
         }
 
-
 def create_product(event, context):
     table = dynamodb.Table('Product')
 
-    # Get data.
-    product_id = event['id']
-    product_name = event['name']
-    price = event['price']
-    in_stock = event['in_stock']
-    
-    nextOrderId = response['Attributes']['count']
+    # Parse the JSON body from the event
+    body = json.loads(event['body'])
 
-    # insert into table
-    response = client.put_item(
-        TableName='ProductCatalog',
-        Item={
-            'Id': {'N': product_id},
-            'Title': {'S': product_name},
-            'Price': {'N': price},
-            'InStock': {'N': in_stock}
+    # Insert into table using the parsed body
+    try:
+        table.put_item(
+            Item={
+                'ProductId': randint(25, 1000000),            
+                'title': body['title'],
+                'price': Decimal(body['price']),
+                'description': body['description'],
+                'category': body['category'],
+                'image': body['image'],
+                'rating_rate': Decimal(body['rating_rate']),
+                'rating_count': body['rating_count'], 
+            }
+        )
+    except KeyError as e:
+        return {
+            'statusCode': 200,
+            'body': json.dumps({'error': str(e)})
         }
-    )
 
-    return response
+    return {
+        'statusCode': 200,
+        'body': json.dumps('Product created successfully')
+    }
+
+def get_product(event, context):
+    print("event", event)
+    print("context", context)
+
+    product_id = -1
+    try: 
+        product_id = event['pathParameters']['id']
+        print(product_id)
+    except Exception:
+        return {
+            'status': 400,
+            'headers': {
+                'Access-Control-Allow-Origin': '*'
+            },
+        }
+    dynamodb = boto3.resource('dynamodb')
+    table = dynamodb.Table('Product')
+    
+    response = table.get_item(Key={'ProductId': int(product_id)})
+    item = convert_decimals(response.get('Item', {}))
+    
+    return {
+        'statusCode': 200,
+        'headers': {
+            'Access-Control-Allow-Origin': '*'
+        },
+        'body': json.dumps(item)
+    }

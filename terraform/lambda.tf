@@ -28,7 +28,7 @@ resource "aws_lambda_function" "get-products" {
   runtime       = "python3.12"
   filename      = "${path.module}/../lambdas/zips/products.zip"
 
-  depends_on = [ aws_iam_role.lambda_iam_role ]
+  depends_on = [aws_iam_role.lambda_iam_role]
 }
 
 # create-product  
@@ -39,7 +39,7 @@ resource "aws_lambda_function" "create-products" {
   runtime       = "python3.12"
   filename      = "${path.module}/../lambdas/zips/products.zip"
 
-  depends_on = [ aws_iam_role.lambda_iam_role ]
+  depends_on = [aws_iam_role.lambda_iam_role]
 }
 
 # populate products
@@ -49,9 +49,9 @@ resource "aws_lambda_function" "populate-products_lambda" {
   handler       = "populate-product-data.populate_products"
   runtime       = "python3.12"
   filename      = "${path.module}/../lambdas/zips/populate-product-data.py"
-  timeout = 10
+  timeout       = 10
 
-  depends_on = [ aws_iam_role.lambda_iam_role ]
+  depends_on = [aws_iam_role.lambda_iam_role]
 }
 
 #add to cart
@@ -61,9 +61,9 @@ resource "aws_lambda_function" "add_to_cart_lambda" {
   handler       = "cart.add_to_cart"
   runtime       = "python3.12"
   filename      = "${path.module}/../lambdas/zips/cart.py"
-  timeout = 4
+  timeout       = 4
 
-  depends_on = [ aws_iam_role.lambda_iam_role ]
+  depends_on = [aws_iam_role.lambda_iam_role]
 }
 
 resource "aws_lambda_function" "get_cart_lambda" {
@@ -72,9 +72,9 @@ resource "aws_lambda_function" "get_cart_lambda" {
   handler       = "cart.get_cart"
   runtime       = "python3.12"
   filename      = "${path.module}/../lambdas/zips/cart.py"
-  timeout = 4
+  timeout       = 4
 
-  depends_on = [ aws_iam_role.lambda_iam_role ]
+  depends_on = [aws_iam_role.lambda_iam_role]
 }
 
 resource "aws_lambda_function" "update_added_cart_lambda" {
@@ -83,9 +83,19 @@ resource "aws_lambda_function" "update_added_cart_lambda" {
   handler       = "cart.update_added_cart"
   runtime       = "python3.12"
   filename      = "${path.module}/../lambdas/zips/cart.py"
-  timeout = 4
+  timeout       = 4
 
-  depends_on = [ aws_iam_role.lambda_iam_role ]
+  depends_on = [aws_iam_role.lambda_iam_role]
+}
+
+resource "aws_lambda_function" "get_product" {
+  function_name = "ecommerce-get-product"
+  role          = aws_iam_role.lambda_iam_role.arn
+  handler       = "products.get_product"
+  runtime       = "python3.12"
+  filename      = "${path.module}/../lambdas/zips/products.zip"
+
+  depends_on = [aws_iam_role.lambda_iam_role]
 }
 
 # Unfortunately we need to hard code these function names.
@@ -94,7 +104,8 @@ resource "aws_lambda_function" "update_added_cart_lambda" {
 variable "lambda_function_names" {
   default = [
     "ecommerce-get-products",
-    "ecommerce-create-products",   
+    "ecommerce-get-product",
+    "ecommerce-create-products",
     "ecommerce-populate-products",
     "ecommerce-add-to-cart",
     "ecommerce-get-cart",
@@ -106,10 +117,10 @@ variable "lambda_function_names" {
 resource "aws_lambda_permission" "allow_apigateway_all_functions" {
   for_each = toset(var.lambda_function_names)
 
-  statement_id  = "AllowExecutionFromAPIGateway-${each.value}" 
+  statement_id  = "AllowExecutionFromAPIGateway-${each.value}"
   action        = "lambda:InvokeFunction"
-  function_name = each.value 
+  function_name = each.value
   principal     = "apigateway.amazonaws.com"
 
-  source_arn    = "${aws_api_gateway_rest_api.ecommerce-api.execution_arn}/*/*" 
+  source_arn = "${aws_api_gateway_rest_api.ecommerce-api.execution_arn}/*/*"
 }

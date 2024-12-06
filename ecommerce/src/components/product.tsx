@@ -4,7 +4,7 @@ import { Box, Button, ButtonBase, Card, CardActions, CardMedia, Chip, Dialog, Di
 import { useState } from "react";
 import { ProductType } from "../types";
 
-export default function Product({ product, handleAddToCart }: { product: ProductType, handleAddToCart: (productId: number, quantity: number) => void }) {
+export default function Product({ product, handleAddToCart }: { product: ProductType, handleAddToCart: (productId: number, quantity: number) => void}, ) {
   const [isOpen, setOpen] = useState(false);
   const [quantity, setQuantity] = useState(1);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -31,8 +31,7 @@ export default function Product({ product, handleAddToCart }: { product: Product
       <ButtonBase onClick={open} disableRipple sx={{ width: '100%' }}>
         <Card
           sx={{
-            width: "100%",
-            maxWidth: "450px",
+            width: "450px",
             transition: 'transform 0.3s ease-in-out',
             ":hover": {
               transform: "scale(1.01)",

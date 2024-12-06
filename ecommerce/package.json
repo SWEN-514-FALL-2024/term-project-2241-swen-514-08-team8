@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@aws-sdk/client-cognito-identity-provider": "^3.682.0",
+    "@aws-sdk/client-s3": "^3.703.0",
     "@emotion/react": "^11.13.3",
     "@emotion/styled": "^11.13.0",
     "@hookform/resolvers": "^3.9.1",

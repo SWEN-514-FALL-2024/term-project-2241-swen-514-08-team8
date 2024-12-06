@@ -13,7 +13,7 @@ export function useProducts() {
     return await getData(`${SERVER_URL}/products/${id}`);
   }
 
-  async function createProduct(product: Omit<ProductType, "id">) {
+  async function createProduct(product: Omit<ProductType, "ProductId">) {
     return await getData(`${SERVER_URL}/products/`, {
       method: 'POST',
       headers: {

@@ -1,6 +1,8 @@
+ 
+import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Cancel, Create } from "@mui/icons-material";
-import { Box, Button, InputAdornment, Paper, Stack, Typography } from "@mui/material";
+import { Box, Button, CircularProgress, InputAdornment, Paper, Stack, Typography } from "@mui/material";
 import { useState } from "react";
 import {
   FormContainer,
@@ -8,12 +10,25 @@ import {
   TextFieldElement,
   useForm,
 } from "react-hook-form-mui";
+import { useNavigate } from "react-router-dom";
+import { v4 as uuidv4 } from 'uuid';
 import { z } from "zod";
-
+import { AWS_REGION, PRODUCTS_ACCESS_KEY, PRODUCTS_BUCKET_NAME, PRODUCTS_SECRET_KEY } from "../../constants";
+import { useProducts } from "../../fetch/product";
 import Product from "../product";
 import { useNotification } from "../providers/alerts";
 
+const s3Client = new S3Client({
+  region: "us-east-1", 
+  credentials: {
+    accessKeyId: PRODUCTS_ACCESS_KEY, 
+    secretAccessKey: PRODUCTS_SECRET_KEY,
+  },
+});
+
 export default function CreateProduct() {
+  const navigate = useNavigate();
+  const { createProduct } = useProducts();
   const form = useForm({
     defaultValues: {
       Name: "",
@@ -47,18 +62,76 @@ export default function CreateProduct() {
 
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const { notify } = useNotification();
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const [loading, setLoading] = useState(false);
 
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleSubmit = async () => {
+    form.handleSubmit(async ()=>{
+      if (uploadedFile) {
+        setLoading(true);
+        const url = await uploadPhotoToS3(uploadedFile);
+        if (!url) {
+          notify("Error uploading photo", "error");
+          return;
+        }
+        const data = {
+          title: watched[0],
+          description: watched[1],
+          price: watched[2],
+          category: watched[3],
+          image: url,
+          rating_count: watched[5],
+          rating_rate: watched[6],
+        }
+        console.log(data)
+        await createProduct(data);
+        setUploadedFile(null);
+        setImagePreview(null);
+        notify("Product created successfully", "success");
+        navigate('/admin/');
+        setLoading(false);
+      } else {
+        notify("Please upload a photo", "error");
+      }
+    })()
+   }
+
+   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
       const reader = new FileReader();
+      reader.readAsDataURL(file);
       reader.onloadend = () => {
         setImagePreview(reader.result as string);
+        setUploadedFile(file);
         form.setValue('Image', reader.result as string);
       };
-      reader.readAsDataURL(file);
     }
   };
+
+  const uploadPhotoToS3 = async (file: File) => {
+    console.log(file) 
+    const imageUUID = uuidv4();
+    const params = {
+      Bucket: PRODUCTS_BUCKET_NAME,
+      Key: `photos/${imageUUID}`, // The path where the photo will be stored in the bucket
+      Body: file,
+      ContentType: file.type,
+    };
+
+    try {
+      const command = new PutObjectCommand(params);
+      await s3Client.send(command);
+      const objectUrl = `https://${params.Bucket}.s3.${AWS_REGION}.amazonaws.com/photos/${imageUUID}`;
+      console.log(objectUrl)
+      console.log("Photo uploaded successfully");
+      return objectUrl;
+    } catch (error) {
+      console.error("Error uploading photo:", error);
+      return null;
+    }
+  };
+
 
   const watched = form.watch(
     [
@@ -159,14 +232,10 @@ export default function CreateProduct() {
               color="success"
               fullWidth
               variant="contained"
-              startIcon={<Create />}
-              onClick={() => {
-                form.handleSubmit(() => {
-                  notify("Product created successfully", "success");
-                })();
-              }}
+              startIcon={loading ? null : <Create />}
+              onClick={handleSubmit}
             >
-              Create
+              {loading ? <CircularProgress size={24} /> : "Create Product"}
             </Button>
           </Stack>
         </FormContainer>

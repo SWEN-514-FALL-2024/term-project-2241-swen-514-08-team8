@@ -7,13 +7,22 @@ resource "aws_s3_bucket" "ecombucket" {
 }
 
 resource "local_sensitive_file" "production_env" {
-  content = <<EOF
+  content  = <<EOF
 VITE_COGNITO_USER_POOL_ID=${aws_cognito_user_pool.my_user_pool.id}
 VITE_COGNITO_CLIENT_ID=${aws_cognito_user_pool_client.app_client.id}
 VITE_SERVER_URL=${aws_api_gateway_stage.ecommerce-api-stage.invoke_url}
+VITE_PRODUCTS_BUCKET_SECRET_KEY=${aws_iam_access_key.s3_upload_user_key.secret}
+VITE_PRODUCTS_BUCKET_ACCESS_KEY=${aws_iam_access_key.s3_upload_user_key.id}
+VITE_PRODUCTS_BUCKET_NAME=${aws_s3_bucket.products_bucket.id}
 EOF
   filename = "${path.module}/../ecommerce/.env"
-  depends_on = [ aws_cognito_user_pool.my_user_pool, aws_cognito_user_pool_client.app_client, aws_api_gateway_stage.ecommerce-api-stage ]
+  depends_on = [
+    aws_cognito_user_pool.my_user_pool,
+    aws_cognito_user_pool_client.app_client,
+    aws_api_gateway_stage.ecommerce-api-stage,
+    aws_iam_access_key.s3_upload_user_key,
+    aws_s3_bucket.products_bucket
+  ]
 }
 
 # Null resource to execute AWS CLI sync after bucket creation, uploading all our frontend files.
@@ -49,7 +58,7 @@ resource "aws_s3_bucket_policy" "ecombucket_policy" {
     ]
   })
 
-  depends_on = [ aws_s3_bucket_public_access_block.ecombucket_public_access_block ]
+  depends_on = [aws_s3_bucket_public_access_block.ecombucket_public_access_block]
 }
 
 
@@ -64,5 +73,5 @@ resource "aws_s3_bucket_website_configuration" "s3_website_config" {
     key = "index.html" // Page refreshing in React Router
   }
 
-  depends_on = [ aws_s3_bucket_public_access_block.ecombucket_public_access_block ]
+  depends_on = [aws_s3_bucket_public_access_block.ecombucket_public_access_block]
 }
